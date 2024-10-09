@@ -1,11 +1,22 @@
 # 항해 플러스 3주차. e-커머스
 
+## 프로젝트 정보
+- Java 17
+- SpringBoot 3.3.4
+- JUnit + AssertJ
+- Layered + Clean Architecture
+- Swagger (http://localhost:8080/swagger-ui/index.html)
+
 ## 목차
 
 ### `Step05`
 1. [시나리오 선정](#1-시나리오-선정-e-커머스-서비스)
 2. [Milestone](#2-Milestone)
 3. [시퀀스 다이어그램](#3-시퀀스-다이어그램)
+
+### `Step06`
+1. [ERD](#1-erd)
+2. [API 명세 및 MockAPI](#2-api-명세-및-mockapi)
 
 ---
 
@@ -210,4 +221,18 @@ sequenceDiagram
   데이터 플랫폼-->>-장바구니: 장바구니 정보 삭제 완료
   장바구니-->>-클라이언트: 장바구니 제거 완료 응답
 ```
+</details>
+
+## `Step6`
+
+## 1. ERD
+
+<details>
+<summary>내용 보기</summary>
+</details>
+
+## 2. API 명세 및 MockAPI
+
+<details>
+<summary>내용 보기</summary>
 </details>
