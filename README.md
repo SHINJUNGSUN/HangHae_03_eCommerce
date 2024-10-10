@@ -15,7 +15,7 @@
 3. [시퀀스 다이어그램](#3-시퀀스-다이어그램)
 
 ### `Step06`
-1. [ERD](#1-erd)
+1. [ERD 설계](#1-erd-설계)
 2. [API 명세 및 MockAPI](#2-api-명세-및-mockapi)
 
 ---
@@ -113,7 +113,7 @@
 <details>
 <summary>내용 보기</summary>
 
-### Ver.1주차 (2024년 10월 05일 ~ 2024년 10월 11일)
+### ver. 1주차 (2024년 10월 05일 ~ 2024년 10월 11일)
 - 클라이언트, 도메인 모듈, 데이터 플랫폼을 기본 구조로 시퀀스 다이어그램을 작성 
 - 추후 과제 요구사항에 맞춰 점차 고도화 예정
 - Mermaid 로딩 문제로 인한 다이어그램 통합
@@ -225,14 +225,25 @@ sequenceDiagram
 
 ## `Step6`
 
-## 1. ERD
+## 1. ERD 설계
 
 <details>
 <summary>내용 보기</summary>
+
+### ver. 1주차 (2024년 10월 05일 ~ 2024년 10월 11일)
+- 히스토리 테이블 제외
+- 추후 과제 요구사항에 맞춰 점차 고도화 예정
+
+![img_1.png](docs/step06/img01.png)
+
 </details>
 
 ## 2. API 명세 및 MockAPI
 
 <details>
 <summary>내용 보기</summary>
+
+### 1. [MockAPI Swagger](http://localhost:8080/swagger-ui/index.html)
+### 2. API 명세
+
 </details>

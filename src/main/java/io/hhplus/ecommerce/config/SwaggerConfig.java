@@ -15,7 +15,7 @@ public class SwaggerConfig {
                 .components(new Components())
                 .info(new Info()
                         .title("e-커머스 서비스")
-                        .description("항해 플러스 백엔드 6기 e-커머스 서비스")
+                        .description("항해 플러스 e-커머스 서비스")
                         .version("1.0.0")
                 );
     }
