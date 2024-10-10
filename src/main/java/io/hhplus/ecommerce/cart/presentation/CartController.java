@@ -29,25 +29,33 @@ public class CartController {
 
         List<CartDto.CartResponse> data = new ArrayList<>();
         data.add(new CartDto.CartResponse("C001", "P001", "키보드", 1, 120000));
-        data.add(new CartDto.CartResponse("C002", "P002", "마우스", 4, 50000));
         data.add(new CartDto.CartResponse("C003", "P003", "해드셋", 2, 80000));
 
         return CommonApiResponse.success(data);
     }
 
     @Operation(summary = "장바구니 추가 API")
-    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CartDto.class)))
+    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = CartDto.CartResponse.class))))
     @PatchMapping("/add")
-    public CommonApiResponse<CartDto> add(@RequestBody CartDto.CartPatchRequest request) {
+    public CommonApiResponse<List<CartDto.CartResponse>> add(@RequestBody CartDto.CartAddRequest request) {
 
-        return CommonApiResponse.success(new CartDto());
+        List<CartDto.CartResponse> data = new ArrayList<>();
+        data.add(new CartDto.CartResponse("C001", "P001", "키보드", 1, 120000));
+        data.add(new CartDto.CartResponse("C002", "P002", "마우스", 4, 50000));
+        data.add(new CartDto.CartResponse("C003", "P003", "해드셋", 2, 80000));
+
+        return CommonApiResponse.success(data);
     }
 
     @Operation(summary = "장바구니 제거 API")
-    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CartDto.class)))
+    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = CartDto.CartResponse.class))))
     @PatchMapping("/remove")
-    public CommonApiResponse<CartDto> remove(@RequestBody CartDto.CartPatchRequest request) {
+    public CommonApiResponse<List<CartDto.CartResponse>> remove(@RequestBody CartDto.CartRemoveRequest request) {
 
-        return CommonApiResponse.success(new CartDto());
+        List<CartDto.CartResponse> data = new ArrayList<>();
+        data.add(new CartDto.CartResponse("C001", "P001", "키보드", 1, 120000));
+        data.add(new CartDto.CartResponse("C002", "P002", "마우스", 4, 50000));
+
+        return CommonApiResponse.success(data);
     }
 }

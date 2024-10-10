@@ -1,7 +1,5 @@
 package io.hhplus.ecommerce.cart.application;
 
-import java.util.List;
-
 public class CartDto {
 
     public record CartResponse (
@@ -12,8 +10,14 @@ public class CartDto {
             int unit_price
     ) {}
 
-    public record CartPatchRequest (
-            String cartTsid,
+    public record CartAddRequest (
+            String userTsid,
+            String productTsid,
             int quantity
+    ) {}
+
+    public record CartRemoveRequest (
+            String userTsid,
+            String cartTsid
     ) {}
 }

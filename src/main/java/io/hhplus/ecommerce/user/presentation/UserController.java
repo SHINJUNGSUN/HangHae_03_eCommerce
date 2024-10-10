@@ -18,19 +18,19 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     @Operation(summary = "잔액 조회 API")
-    @Parameter(name = "userTsid", description = "사용자 고유 ID")
-    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDto.UserBalanceResponse.class)))
+    @Parameter(name = "userTsid", description = "사용자 식별 ID")
+    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDto.BalanceResponse.class)))
     @GetMapping("/balance/{userTsid}")
-    public CommonApiResponse<UserDto.UserBalanceResponse> balance(@PathVariable String userTsid) {
+    public CommonApiResponse<UserDto.BalanceResponse> balance(@PathVariable String userTsid) {
 
-        return CommonApiResponse.success(new UserDto.UserBalanceResponse(userTsid, 1000000L));
+        return CommonApiResponse.success(UserDto.BalanceResponse.of(userTsid, 1000000L));
     }
 
     @Operation(summary = "잔액 충전 API")
-    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDto.UserBalanceResponse.class)))
+    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDto.BalanceResponse.class)))
     @PatchMapping("/balance/charge")
-    public CommonApiResponse<UserDto.UserBalanceResponse> charge(@RequestBody UserDto.BalanceChargeRequest request) {
+    public CommonApiResponse<UserDto.BalanceResponse> charge(@RequestBody UserDto.BalanceUpdateRequest request) {
 
-        return CommonApiResponse.success(new UserDto.UserBalanceResponse(request.userTsid(), 1000000L + request.amount()));
+        return CommonApiResponse.success(UserDto.BalanceResponse.of(request.userTsid(), 1000000L + request.amount()));
     }
 }

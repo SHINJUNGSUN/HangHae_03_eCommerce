@@ -243,7 +243,493 @@ sequenceDiagram
 <details>
 <summary>내용 보기</summary>
 
-### 1. [MockAPI Swagger](http://localhost:8080/swagger-ui/index.html)
-### 2. API 명세
+## MockAPI
 
+`Swagger`: http://localhost:8080/swagger-ui/index.html
+
+![img.png](docs/step06/img02.png)
+
+## API 명세
+
+### (1) 잔액 조회 API
+- Endpoint: `GET` /users/balance/{userTsid}
+- Summary: 사용자의 잔액을 조회한다.
+- Parameter:
+  - `userTsid` 사용자 식별 ID
+- ResponseBody:
+  - `200` OK
+    - `userTsid`: 사용자 식별 ID
+    - `balance`: 잔액
+  ```json
+  {
+    "userTsid": "string",
+    "balance": "long"
+  }
+  ```
+- Example:
+  - Response:
+    ```json
+    {
+      "userTsid": "U001",
+      "balance": 1000000
+    }
+    ```
+    
+### (2) 잔액 충전 API
+- Endpoint: `PATCH` /users/balance/charge
+- Summary: 사용자의 잔액을 충전한다.
+- RequestBody:
+  - `userTsid`: 사용자 식별 ID
+  - `amount`: 충전할 금액
+  ```json
+  {
+    "userTsid": "string",
+    "amount": "long"
+  }
+  ```
+- ResponseBody:
+  - `200` OK
+    - `userTsid`: 사용자 식별 ID
+    - `balance`: 잔액
+    ```json
+    {
+      "userTsid": "string",
+      "balance": "long"
+    }
+    ```
+- Example:
+  - Request:
+    ```json
+    {
+      "userTsid": "U001",
+      "amount": 500000
+    }
+    ``` 
+  - Response:
+    ```json
+    {
+      "userTsid": "U001",
+      "balance": 1500000
+    }
+    ```
+
+### (3) 상품 목록 조회 API
+- Endpoint: `GET` /products
+- Summary: 상품 목록을 조회한다.
+- ResponseBody:
+  - `200` OK
+    - `productTsid`: 상품 식별 ID
+    - `productName`: 상품명
+    - `unitPrice`: 단가
+    - `stock`: 재고 수량
+  ```json
+  [
+    {
+      "productTsid": "String",
+      "productName": "String",
+      "unitPrice": "Integer",
+      "stock": "Integer"
+    }
+  ]
+  ```
+- Example:
+  - Response:
+    ```json
+    [
+      {
+        "productTsid": "P001",
+        "productName": "키보드",
+        "unitPrice": 100000,
+        "stock": 100
+      },
+      {
+        "productTsid": "P002",
+        "productName": "마우스",
+        "unitPrice": 50000,
+        "stock": 500
+      },
+      {
+        "productTsid": "P003",
+        "productName": "모니터",
+        "unitPrice": 300000,
+        "stock": 90
+      },
+      {
+        "productTsid": "P004",
+        "productName": "헤드셋",
+        "unitPrice": 150000,
+        "stock": 200
+      },
+      {
+        "productTsid": "P005",
+        "productName": "노트북",
+        "unitPrice": 1000000,
+        "stock": 30
+      },
+      {
+        "productTsid": "P006",
+        "productName": "태블릿",
+        "unitPrice": 250000,
+        "stock": 40
+      },
+      {
+        "productTsid": "P007",
+        "productName": "데스크톱",
+        "unitPrice": 2000000,
+        "stock": 10
+      }
+    ]
+    ```
+
+### (4) 상위 상품 조회 API
+- Endpoint: `GET` /products/top
+- Summary: 최근 3일간 가장 많이 팔린 상위 5개 상품을 조회한다.
+- ResponseBody:
+  - `200` OK
+    - `productTsid`: 상품 식별 ID
+    - `productName`: 상품명
+    - `unitPrice`: 단가
+    - `stock`: 재고 수량
+  ```json
+  [
+    {
+      "productTsid": "String",
+      "productName": "String",
+      "unitPrice": "Integer",
+      "stock": "Integer"
+    }
+  ]
+  ```
+- Example:
+  - Response:
+    ```json
+    [
+      {
+        "productTsid": "P001",
+        "productName": "키보드",
+        "unitPrice": 100000,
+        "stock": 100
+      },
+      {
+        "productTsid": "P002",
+        "productName": "마우스",
+        "unitPrice": 50000,
+        "stock": 500
+      },
+      {
+        "productTsid": "P003",
+        "productName": "모니터",
+        "unitPrice": 300000,
+        "stock": 90
+      },
+      {
+        "productTsid": "P004",
+        "productName": "헤드셋",
+        "unitPrice": 150000,
+        "stock": 200
+      },
+      {
+        "productTsid": "P005",
+        "productName": "노트북",
+        "unitPrice": 1000000,
+        "stock": 30
+      }
+    ]
+    ```
+
+### (5) 주문 API
+- Endpoint: `POST` /orders
+- Summary: 상품을 주문한다.
+- RequestBody:
+  - `userTsid`: 사용자 식별 ID
+  - `productList`: 주문 상품 리스트
+    - `productTsid`: 상품 식별 ID
+    - `quantity`: 주문 수량 
+  ```json
+  {
+    "userTsid": "String",
+    "productList": [
+      {
+        "productTsid" : "String",
+        "quantity" : "Integer"
+      }
+    ]
+  }
+  ```
+- ResponseBody:
+  - `200` OK
+    - `orderTsid`: 주문 식별 ID
+    - `totalPrice`: 주문 금액 합계
+    - `status`: 주문 상태 (0: 주문 취소, 1: 결제 대기, 2: 결제 완료)
+    - `productList`: 주문 상품 리스트
+      - `productTsid`: 상품 식별 ID
+      - `productName`: 상품명
+      - `quantity`: 주문 수량
+      - `unitPrice`: 단가
+    ```json
+    {
+      "orderTsid": "String",
+      "totalPrice" : "Integer",
+      "status" : "Integer",
+      "productList": [
+        {
+          "productTsid" : "String",
+          "productName" : "String",
+          "quantity" : "Integer",
+          "unitPrice" : "Integer"
+        }
+      ]
+    }
+    ```
+- Example:
+  - Request:
+    ```json
+    {
+      "userTsid": "U001",
+      "productList": [
+        {
+          "productTsid": "P001",
+          "quantity": 1
+        },
+        {
+          "productTsid": "P002",
+          "quantity": 3
+        }
+      ]
+    }
+    ``` 
+  - Response:
+    ```json
+    {
+      "orderTsid": "O001",
+      "totalPrice": 250000,
+      "status": 1,
+      "productList": [
+        {
+          "productTsid": "P001",
+          "productName": "키보드",
+          "quantity": 1,
+          "unitPrice": 100000
+        },
+        {
+          "productTsid": "P002",
+          "productName": "마우스",
+          "quantity": 3,
+          "unitPrice": 50000
+        }
+      ]
+    }
+    ```
+
+### (6) 결제 API
+- Endpoint: `POST` /payments
+- Summary: 주문을 결제한다.
+- RequestBody:
+  - `userTsid`: 사용자 식별 ID
+  - `orderTsid`: 주문 식별 ID
+  ```json
+  {
+    "userTsid": "String",
+    "orderTsid": "String"
+  }
+  ```
+- ResponseBody:
+  - `200` OK
+    - `paymentTsid`: 결제 식별 ID
+    - `amount`: 결제 금액
+    - `status`: 결제 상태 (0: 결제 취소, 1: 결제 완료)
+    ```json
+    {
+      "paymentTsid": "String",
+      "amount" : "Integer",
+      "status" : "Integer"
+    }
+    ```
+- Example:
+  - Request:
+    ```json
+    {
+      "userTsid": "U001",
+      "orderTsid": "O001"
+    }
+    ``` 
+  - Response:
+    ```json
+    {
+      "orderTsid": "O001",
+      "amount": 250000,
+      "status": 1
+    }
+    ```
+
+### (7) 장바구니 목록 조회 API
+- Endpoint: `GET` /carts/{userTsid}
+- Summary: 장바구니 목록을 조회한다.
+- Parameter:
+  - `userTsid` 사용자 식별 ID
+- ResponseBody:
+  - `200` OK
+    - `cartTsid`: 장바구니 식별 ID
+    - `productTsid`: 상품 식별 ID
+    - `productName`: 상품명
+    - `quantity`: 장바구니 상품 수량
+    - `unit_price`: 단가
+  ```json
+  [
+    {
+      "cartTsid": "String",
+      "productTsid": "String",
+      "productName": "String",
+      "quantity": "Integer",
+      "unit_price": "Integer"
+    }
+  ]
+  ```
+- Example:
+  - Response:
+    ```json
+    [
+      {
+        "cartTsid": "C001",
+        "productTsid": "P001",
+        "productName": "키보드",
+        "quantity": 1,
+        "unit_price": 120000
+      },
+      {
+        "cartTsid": "C003",
+        "productTsid": "P003",
+        "productName": "해드셋",
+        "quantity": 2,
+        "unit_price": 80000
+      }
+    ]
+    ```
+
+### (8) 장바구니 추가 API
+- Endpoint: `PATCH` /carts/add
+- Summary: 장바구니에 상품을 추가한다.
+- RequestBody:
+  - `userTsid`: 사용자 식별 ID
+  - `productTsid`: 상품 식별 ID
+  - `quantity`: 추가 수량
+  ```json
+  {
+    "userTsid": "String",
+    "productTsid": "String",
+    "quantity": "Integer"
+  }
+  ```
+- ResponseBody:
+  - `200` OK
+    - `cartTsid`: 장바구니 식별 ID
+    - `productTsid`: 상품 식별 ID
+    - `productName`: 상품명
+    - `quantity`: 장바구니 상품 수량
+    - `unit_price`: 단가
+  ```json
+  [
+    {
+      "cartTsid": "String",
+      "productTsid": "String",
+      "productName": "String",
+      "quantity": "Integer",
+      "unit_price": "Integer"
+    }
+  ]
+  ```
+- Example:
+  - Request:
+    ```json
+    {
+      "userTsid": "U001",
+      "productTsid": "P002",
+      "quantity": 4
+    }
+    ``` 
+  - Response:
+    ```json
+    [
+      {
+        "cartTsid": "C001",
+        "productTsid": "P001",
+        "productName": "키보드",
+        "quantity": 1,
+        "unit_price": 120000
+      },
+      {
+        "cartTsid": "C002",
+        "productTsid": "P002",
+        "productName": "마우스",
+        "quantity": 4,
+        "unit_price": 50000
+      },
+      {
+        "cartTsid": "C003",
+        "productTsid": "P003",
+        "productName": "해드셋",
+        "quantity": 2,
+        "unit_price": 80000
+      }
+    ]
+    ```
+    
+### (9) 장바구니 제거 API
+- Endpoint: `PATCH` /carts/remove
+- Summary: 장바구니의 상품을 제거한다.
+- RequestBody:
+  - `userTsid`: 사용자 식별 ID
+  - `cartTsid`: 장바구니 식별 ID
+  ```json
+  {
+    "userTsid": "String",
+    "cartTsid": "String"
+  }
+  ```
+- ResponseBody:
+  - `200` OK
+    - `cartTsid`: 장바구니 식별 ID
+    - `productTsid`: 상품 식별 ID
+    - `productName`: 상품명
+    - `quantity`: 장바구니 상품 수량
+    - `unit_price`: 단가
+  ```json
+  [
+    {
+      "cartTsid": "String",
+      "productTsid": "String",
+      "productName": "String",
+      "quantity": "Integer",
+      "unit_price": "Integer"
+    }
+  ]
+  ```
+- Example:
+  - Request:
+    ```json
+    {
+      "userTsid": "U001",
+      "cartTsid": "C003"
+    }
+    ``` 
+  - Response:
+    ```json
+    [
+      {
+        "cartTsid": "C001",
+        "productTsid": "P001",
+        "productName": "키보드",
+        "quantity": 1,
+        "unit_price": 120000
+      },
+      {
+        "cartTsid": "C002",
+        "productTsid": "P002",
+        "productName": "마우스",
+        "quantity": 4,
+        "unit_price": 50000
+      }
+    ]
+    ```
+    
 </details>

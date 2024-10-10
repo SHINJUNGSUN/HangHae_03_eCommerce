@@ -34,7 +34,7 @@ public class UserControllerTest {
     @Test
     @DisplayName("잔액 충전 API 테스트")
     public void chargeTest() throws Exception {
-        UserDto.BalanceChargeRequest request = new UserDto.BalanceChargeRequest("U001", 100000L);
+        UserDto.BalanceUpdateRequest request = new UserDto.BalanceUpdateRequest("U001", 100000L);
 
         ObjectMapper objectMapper = new ObjectMapper();
 
