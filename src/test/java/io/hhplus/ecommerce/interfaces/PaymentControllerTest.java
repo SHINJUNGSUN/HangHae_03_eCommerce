@@ -1,8 +1,8 @@
-package io.hhplus.ecommerce.controller;
+package io.hhplus.ecommerce.interfaces;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.hhplus.ecommerce.payment.application.PaymentDto;
-import io.hhplus.ecommerce.payment.presentation.PaymentController;
+import io.hhplus.ecommerce.api.payment.application.PaymentDto;
+import io.hhplus.ecommerce.api.payment.interfaces.PaymentController;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package io.hhplus.ecommerce.cart.application;
+package io.hhplus.ecommerce.api.cart.application;
 
 public class CartDto {
 

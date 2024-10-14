@@ -1,7 +1,7 @@
-package io.hhplus.ecommerce.payment.presentation;
+package io.hhplus.ecommerce.api.payment.interfaces;
 
 import io.hhplus.ecommerce.common.model.CommonApiResponse;
-import io.hhplus.ecommerce.payment.application.PaymentDto;
+import io.hhplus.ecommerce.api.payment.application.PaymentDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

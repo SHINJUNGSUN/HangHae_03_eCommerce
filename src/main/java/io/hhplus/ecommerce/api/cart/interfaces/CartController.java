@@ -1,6 +1,6 @@
-package io.hhplus.ecommerce.cart.presentation;
+package io.hhplus.ecommerce.api.cart.interfaces;
 
-import io.hhplus.ecommerce.cart.application.CartDto;
+import io.hhplus.ecommerce.api.cart.application.CartDto;
 import io.hhplus.ecommerce.common.model.CommonApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

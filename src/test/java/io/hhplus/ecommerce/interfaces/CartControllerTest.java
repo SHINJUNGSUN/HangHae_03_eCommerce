@@ -1,8 +1,8 @@
-package io.hhplus.ecommerce.controller;
+package io.hhplus.ecommerce.interfaces;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.hhplus.ecommerce.cart.application.CartDto;
-import io.hhplus.ecommerce.cart.presentation.CartController;
+import io.hhplus.ecommerce.api.cart.application.CartDto;
+import io.hhplus.ecommerce.api.cart.interfaces.CartController;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,7 @@
-package io.hhplus.ecommerce.order.presentation;
+package io.hhplus.ecommerce.api.order.interfaces;
 
 import io.hhplus.ecommerce.common.model.CommonApiResponse;
-import io.hhplus.ecommerce.order.application.OrderDto;
+import io.hhplus.ecommerce.api.order.application.OrderDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

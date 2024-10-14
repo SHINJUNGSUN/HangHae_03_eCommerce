@@ -1,6 +1,6 @@
-package io.hhplus.ecommerce.controller;
+package io.hhplus.ecommerce.interfaces;
 
-import io.hhplus.ecommerce.product.presentation.ProductController;
+import io.hhplus.ecommerce.api.product.interfaces.ProductController;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

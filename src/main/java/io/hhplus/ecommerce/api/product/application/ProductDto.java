@@ -1,4 +1,4 @@
-package io.hhplus.ecommerce.product.application;
+package io.hhplus.ecommerce.api.product.application;
 
 import lombok.Builder;
 

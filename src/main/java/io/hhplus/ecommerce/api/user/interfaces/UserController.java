@@ -1,7 +1,7 @@
-package io.hhplus.ecommerce.user.presentation;
+package io.hhplus.ecommerce.api.user.interfaces;
 
 import io.hhplus.ecommerce.common.model.CommonApiResponse;
-import io.hhplus.ecommerce.user.application.UserDto;
+import io.hhplus.ecommerce.api.user.application.UserDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

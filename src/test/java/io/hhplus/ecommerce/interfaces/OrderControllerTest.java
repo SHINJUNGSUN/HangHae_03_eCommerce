@@ -1,8 +1,8 @@
-package io.hhplus.ecommerce.controller;
+package io.hhplus.ecommerce.interfaces;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.hhplus.ecommerce.order.application.OrderDto;
-import io.hhplus.ecommerce.order.presentation.OrderController;
+import io.hhplus.ecommerce.api.order.application.OrderDto;
+import io.hhplus.ecommerce.api.order.interfaces.OrderController;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
