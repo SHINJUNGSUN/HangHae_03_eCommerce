@@ -1,10 +1,12 @@
 package io.hhplus.ecommerce.interfaces;
 
+import io.hhplus.ecommerce.api.product.application.ProductUseCase;
 import io.hhplus.ecommerce.api.product.interfaces.ProductController;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -17,6 +19,9 @@ public class ProductControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @MockBean
+    private ProductUseCase productUseCase;
+
     @Test
     @DisplayName("상품 목록 조회 API 테스트")
     public void productsTest() throws Exception {
@@ -27,8 +32,8 @@ public class ProductControllerTest {
 
     @Test
     @DisplayName("상위 상품 조회 API 테스트")
-    public void topProductsTest() throws Exception {
-        mockMvc.perform(get("/products/top"))
+    public void popularProductsTest() throws Exception {
+        mockMvc.perform(get("/products/popular"))
                 .andExpect(status().isOk())
                 .andDo(print());
     }

@@ -23,3 +23,13 @@ CREATE TABLE `ecommerce`.`point_history`
     PRIMARY KEY (`id`),
     INDEX `idx_user_id` (`user_id`)
 );
+
+DROP TABLE IF EXISTS `ecommerce`.`product`;
+CREATE TABLE `ecommerce`.`product`
+(
+    `id`    BIGINT  NOT NULL    AUTO_INCREMENT  COMMENT '상품 고유 식별자',
+    `product_name`   VARCHAR(50)  NOT NULL    COMMENT '상품명',
+    `unit_price`    BIGINT  NOT NULL    COMMENT '단가',
+    `stock`  BIGINT NOT NULL    COMMENT '재고',
+    PRIMARY KEY (`id`)
+);

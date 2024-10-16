@@ -1,12 +1,14 @@
 package io.hhplus.ecommerce.interfaces;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.hhplus.ecommerce.api.user.application.UserUseCase;
 import io.hhplus.ecommerce.api.user.application.dto.UserPointRequest;
 import io.hhplus.ecommerce.api.user.interfaces.UserController;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -20,6 +22,9 @@ public class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private UserUseCase userUseCase;
 
     @Test
     @DisplayName("잔액 조회 API 테스트")
