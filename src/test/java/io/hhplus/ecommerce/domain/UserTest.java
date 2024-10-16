@@ -23,7 +23,14 @@ public class UserTest {
     @Test
     @DisplayName("포인트 충전 성공")
     void chargePoint_success() {
+        // Given
+        long chargeAmount = 50000L;
 
+        // When
+        user.chargePoint(chargeAmount);
+
+        // Then
+        assertEquals(150000L, user.getPoint());
     }
 
     @Test
@@ -39,7 +46,14 @@ public class UserTest {
     @Test
     @DisplayName("포인트 사용 성공")
     void usePoint_success() {
+        // Given
+        long chargeAmount = 50000L;
 
+        // When
+        user.usePoint(chargeAmount);
+
+        // Then
+        assertEquals(50000L, user.getPoint());
     }
 
     @Test

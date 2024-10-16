@@ -1,9 +1,9 @@
 package io.hhplus.ecommerce.api.user.interfaces;
 
 import io.hhplus.ecommerce.api.user.application.UserUseCase;
+import io.hhplus.ecommerce.api.user.application.dto.UserPointRequest;
 import io.hhplus.ecommerce.api.user.application.dto.UserPointResponse;
 import io.hhplus.ecommerce.common.model.CommonApiResponse;
-import io.hhplus.ecommerce.api.user.application.UserDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,17 +23,16 @@ public class UserController {
 
     @Operation(summary = "잔액 조회 API")
     @Parameter(name = "id", description = "사용자 고유 식별자")
-    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDto.BalanceResponse.class)))
+    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserPointResponse.class)))
     @GetMapping("/balance/{id}")
     public CommonApiResponse<UserPointResponse> balance(@PathVariable("id") long userId) {
         return CommonApiResponse.success(userUseCase.point(userId));
     }
 
     @Operation(summary = "잔액 충전 API")
-    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDto.BalanceResponse.class)))
+    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserPointResponse.class)))
     @PatchMapping("/balance/charge")
-    public CommonApiResponse<UserDto.BalanceResponse> charge(@RequestBody UserDto.BalanceUpdateRequest request) {
-
-        return CommonApiResponse.success(UserDto.BalanceResponse.of(request.userTsid(), 1000000L + request.amount()));
+    public CommonApiResponse<UserPointResponse> charge(@RequestBody UserPointRequest request) {
+        return CommonApiResponse.success(userUseCase.chargePoint(request));
     }
 }

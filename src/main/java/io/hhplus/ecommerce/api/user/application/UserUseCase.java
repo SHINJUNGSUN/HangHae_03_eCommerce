@@ -6,5 +6,5 @@ import io.hhplus.ecommerce.api.user.application.dto.UserPointResponse;
 public interface UserUseCase {
     UserPointResponse point(long userId);
     UserPointResponse chargePoint(UserPointRequest request);
-    UserPointResponse userPoint(UserPointRequest request);
+    UserPointResponse usePoint(UserPointRequest request);
 }

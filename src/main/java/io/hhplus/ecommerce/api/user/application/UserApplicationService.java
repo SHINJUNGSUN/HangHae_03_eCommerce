@@ -2,9 +2,10 @@ package io.hhplus.ecommerce.api.user.application;
 
 import io.hhplus.ecommerce.api.user.application.dto.UserPointRequest;
 import io.hhplus.ecommerce.api.user.application.dto.UserPointResponse;
+import io.hhplus.ecommerce.api.user.domain.PointHistory;
+import io.hhplus.ecommerce.api.user.domain.PointHistoryRepository;
+import io.hhplus.ecommerce.api.user.domain.User;
 import io.hhplus.ecommerce.api.user.domain.UserRepository;
-import io.hhplus.ecommerce.common.enums.UserError;
-import io.hhplus.ecommerce.common.exception.UserException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,22 +14,35 @@ import org.springframework.stereotype.Service;
 public class UserApplicationService implements UserUseCase {
 
     private final UserRepository userRepository;
+    private final PointHistoryRepository pointHistoryRepository;
 
     @Override
     public UserPointResponse point(long userId) {
 
-        return UserPointResponse.from(
-                userRepository.findByUserId(userId)
-                        .orElseThrow(() -> new UserException(UserError.USER_NOT_FOUND)));
+        return UserPointResponse.from(userRepository.findByUserId(userId));
     }
 
     @Override
     public UserPointResponse chargePoint(UserPointRequest request) {
-        return null;
+
+        User user = userRepository.findByUserId(request.userId());
+
+        user.chargePoint(request.amount());
+
+        pointHistoryRepository.save(PointHistory.createChargeHistory(request.userId(), request.amount()));
+
+        return UserPointResponse.from(userRepository.save(user));
     }
 
     @Override
-    public UserPointResponse userPoint(UserPointRequest request) {
-        return null;
+    public UserPointResponse usePoint(UserPointRequest request) {
+
+        User user = userRepository.findByUserId(request.userId());
+
+        user.usePoint(request.amount());
+
+        pointHistoryRepository.save(PointHistory.createUseHistory(request.userId(), request.amount()));
+
+        return UserPointResponse.from(userRepository.save(user));
     }
 }

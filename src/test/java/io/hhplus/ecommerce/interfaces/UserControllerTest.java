@@ -1,7 +1,7 @@
 package io.hhplus.ecommerce.interfaces;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.hhplus.ecommerce.api.user.application.UserDto;
+import io.hhplus.ecommerce.api.user.application.dto.UserPointRequest;
 import io.hhplus.ecommerce.api.user.interfaces.UserController;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,9 +24,9 @@ public class UserControllerTest {
     @Test
     @DisplayName("잔액 조회 API 테스트")
     public void balanceTest() throws Exception {
-        String userTsid = "U001";
+        long userId = 1L;
 
-        mockMvc.perform(get("/users/balance/{userTsid}", userTsid))
+        mockMvc.perform(get("/users/balance/{id}", userId))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
@@ -34,7 +34,7 @@ public class UserControllerTest {
     @Test
     @DisplayName("잔액 충전 API 테스트")
     public void chargeTest() throws Exception {
-        UserDto.BalanceUpdateRequest request = new UserDto.BalanceUpdateRequest("U001", 100000L);
+        UserPointRequest request = new UserPointRequest(1L, 50000L);
 
         ObjectMapper objectMapper = new ObjectMapper();
 
