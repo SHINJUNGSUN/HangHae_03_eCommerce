@@ -14,7 +14,6 @@ public class UserTest {
 
     @BeforeEach
     public void setUp() {
-        // Given
         user = User.builder()
                 .userName("Alice")
                 .point(100000L)
@@ -22,9 +21,44 @@ public class UserTest {
     }
 
     @Test
+    @DisplayName("포인트 충전 성공")
+    void chargePoint_success() {
+
+    }
+
+    @Test
     @DisplayName("포인트 충전 금액이 0 보다 작거나 같은 경우, 실패")
-    void chargeBalance_fail_amountIsNegative() {
+    void chargePoint_fail_amount_is_zero_or_negative() {
+        // Given
+        long chargeAmount = -50000L;
+
         // When & Then
-        assertThrows(UserException.class, () -> user.chargePoint(-50000L));
+        assertThrows(UserException.class, () -> user.chargePoint(chargeAmount));
+    }
+
+    @Test
+    @DisplayName("포인트 사용 성공")
+    void usePoint_success() {
+
+    }
+
+    @Test
+    @DisplayName("포인트 사용 금액이 0 보다 작거나 같은 경우, 실패")
+    void usePoint_fail_amount_is_zero_or_negative() {
+        // Given
+        long useAmount = -50000L;
+
+        // When & Then
+        assertThrows(UserException.class, () -> user.usePoint(useAmount));
+    }
+
+    @Test
+    @DisplayName("포인트 사용 금액이 잔액보다 큰 경우, 실패")
+    void usePoint_fail_amount_exceeds_balance() {
+        // Given
+        long useAmount = 200000L;
+
+        // When & Then
+        assertThrows(UserException.class, () -> user.usePoint(useAmount));
     }
 }

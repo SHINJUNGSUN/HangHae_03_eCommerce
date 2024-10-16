@@ -14,7 +14,7 @@ public class ApiControllerAdvice {
     @ExceptionHandler(value = UserException.class)
     public CommonApiResponse<ErrorResponse> handleUserException(UserException e) {
         UserError error = e.getError();
-        log.error("[{}] User Error: {}", error.getStatus(), error.getErrorCode(), e);
+        log.error("[{}] User Error: {}", error.getStatus(), error.getErrorMessage(), e);
         return CommonApiResponse.error(error.getStatus(), error.getErrorCode(), error.getErrorMessage());
     }
 

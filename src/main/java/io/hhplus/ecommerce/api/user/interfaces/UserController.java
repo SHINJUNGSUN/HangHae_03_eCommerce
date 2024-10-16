@@ -1,5 +1,7 @@
 package io.hhplus.ecommerce.api.user.interfaces;
 
+import io.hhplus.ecommerce.api.user.application.UserUseCase;
+import io.hhplus.ecommerce.api.user.application.dto.UserPointResponse;
 import io.hhplus.ecommerce.common.model.CommonApiResponse;
 import io.hhplus.ecommerce.api.user.application.UserDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,13 +19,14 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "사용자 API")
 public class UserController {
 
-    @Operation(summary = "잔액 조회 API")
-    @Parameter(name = "userTsid", description = "사용자 식별 ID")
-    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDto.BalanceResponse.class)))
-    @GetMapping("/balance/{userTsid}")
-    public CommonApiResponse<UserDto.BalanceResponse> balance(@PathVariable String userTsid) {
+    private final UserUseCase userUseCase;
 
-        return CommonApiResponse.success(UserDto.BalanceResponse.of(userTsid, 1000000L));
+    @Operation(summary = "잔액 조회 API")
+    @Parameter(name = "id", description = "사용자 고유 식별자")
+    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDto.BalanceResponse.class)))
+    @GetMapping("/balance/{id}")
+    public CommonApiResponse<UserPointResponse> balance(@PathVariable("id") long userId) {
+        return CommonApiResponse.success(userUseCase.point(userId));
     }
 
     @Operation(summary = "잔액 충전 API")

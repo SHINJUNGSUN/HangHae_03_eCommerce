@@ -31,6 +31,15 @@ public class User {
     }
 
     public void usePoint(long amount) {
+
+        if(amount <= 0) {
+            throw new UserException(UserError.INVALID_USE_AMOUNT);
+        }
+
+        if(this.point < amount) {
+            throw new UserException(UserError.INSUFFICIENT_BALANCE);
+        }
+
         this.point -= amount;
     }
 }
