@@ -8,6 +8,7 @@ import java.util.Optional;
 public interface CartRepository {
     List<Cart> findByUserId(long userId);
     Optional<Cart> findByUserIdAndProductId(long userId, long productId);
-    void save(Cart cart);
+    Cart save(Cart cart);
     void delete(Cart cart);
+    void deleteAll();
 }

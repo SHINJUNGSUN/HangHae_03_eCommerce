@@ -31,4 +31,9 @@ public class UserCoreRepository implements UserRepository, PointHistoryRepositor
     public void save(PointHistory pointHistory) {
         pointHistoryJpaRepository.save(pointHistory);
     }
+
+    @Override
+    public void deleteAll() {
+        userJpaRepository.deleteAll();
+    }
 }
