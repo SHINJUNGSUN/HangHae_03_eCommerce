@@ -18,6 +18,8 @@
 1. [ERD 설계](#1-erd-설계)
 2. [API 명세 및 MockAPI](#2-api-명세-및-mockapi)
 
+### `Step07`
+1. [Swagger](#1-erd-설계)
 ---
 
 ## `Step5`
@@ -243,13 +245,7 @@ sequenceDiagram
 <details>
 <summary>내용 보기</summary>
 
-## MockAPI
-
-`Swagger`: http://localhost:8080/swagger-ui/index.html
-
-![img.png](docs/step06/img02.png)
-
-## API 명세
+## API 명세 및 MockAPI
 
 ### (1) 잔액 조회 API
 - Endpoint: `GET` /users/balance/{userTsid}
@@ -732,4 +728,15 @@ sequenceDiagram
     ]
     ```
     
+</details>
+
+## `Step7`
+## 1. Swagger
+<details>
+<summary>내용 보기</summary>
+
+### Swagger: http://localhost:8080/swagger-ui/index.html
+
+![img.png](docs/step07/img01.png)
+
 </details>
