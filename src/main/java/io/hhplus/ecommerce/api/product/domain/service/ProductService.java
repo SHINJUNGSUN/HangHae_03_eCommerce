@@ -7,5 +7,5 @@ import java.util.List;
 public interface ProductService {
     Product getProduct(long productId);
     List<Product> getProducts();
-    Product outboundProduct(long productId, long quantity);
+    Product reduceProduct(long productId, long quantity);
 }

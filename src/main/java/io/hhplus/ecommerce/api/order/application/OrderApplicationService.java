@@ -27,7 +27,7 @@ public class OrderApplicationService {
         List<OrderLineRequest> orderLineRequestList = new ArrayList<>();
 
         for (OrderProduct orderProduct : orderRequest.OrderProductList()) {
-            Product product = productService.outboundProduct(orderProduct.productId(), orderProduct.quantity());
+            Product product = productService.reduceProduct(orderProduct.productId(), orderProduct.quantity());
 
             orderLineRequestList.add(OrderLineRequest.of(product, orderProduct.quantity()));
         }

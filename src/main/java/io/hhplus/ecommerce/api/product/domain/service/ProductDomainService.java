@@ -27,12 +27,12 @@ public class ProductDomainService implements ProductService {
     }
 
     @Override
-    public Product outboundProduct(long productId, long quantity) {
+    public Product reduceProduct(long productId, long quantity) {
 
         Product product = productRepository.findByProductId(productId)
                 .orElseThrow(() -> new ProductException(ProductError.PRODUCT_NOT_FOUND));
 
-        product.outboundProduct(quantity);
+        product.reduceProduct(quantity);
 
         return productRepository.save(product);
     }

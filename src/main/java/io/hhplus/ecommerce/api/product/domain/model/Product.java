@@ -23,7 +23,7 @@ public class Product {
 
     private Long stock;
 
-    public void outboundProduct(long quantity) {
+    public void reduceProduct(long quantity) {
 
         if(quantity <= 0) {
             throw new ProductException(ProductError.INVALID_QUANTITY);

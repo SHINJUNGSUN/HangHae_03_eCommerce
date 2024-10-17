@@ -1,11 +1,14 @@
 package io.hhplus.ecommerce.payment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.hhplus.ecommerce.api.payment.application.PaymentApplicationService;
+import io.hhplus.ecommerce.api.payment.application.dto.PaymentRequest;
 import io.hhplus.ecommerce.api.payment.interfaces.PaymentController;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -19,10 +22,13 @@ public class PaymentControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @MockBean
+    private PaymentApplicationService paymentApplicationService;
+
     @Test
     @DisplayName("결제 API 테스트")
-    public void ordersTest() throws Exception {
-        PaymentDto.PaymentRequest request = new PaymentDto.PaymentRequest("U001", "O001");
+    public void paymentTest() throws Exception {
+        PaymentRequest request = new PaymentRequest(1L, 1L);
 
         ObjectMapper objectMapper = new ObjectMapper();
 
