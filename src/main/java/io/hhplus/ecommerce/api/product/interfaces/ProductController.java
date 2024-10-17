@@ -1,6 +1,6 @@
 package io.hhplus.ecommerce.api.product.interfaces;
 
-import io.hhplus.ecommerce.api.product.application.ProductUseCase;
+import io.hhplus.ecommerce.api.product.application.ProductApplicationService;
 import io.hhplus.ecommerce.api.product.application.dto.ProductResponse;
 import io.hhplus.ecommerce.common.model.CommonApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,19 +22,19 @@ import java.util.List;
 @Tag(name = "상품 API")
 public class ProductController {
 
-    private final ProductUseCase productUseCase;
+    private final ProductApplicationService productApplicationService;
 
     @Operation(summary = "상품 목록 조회 API")
     @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProductResponse.class))))
     @GetMapping("")
     public CommonApiResponse<List<ProductResponse>> products() {
-        return CommonApiResponse.success(productUseCase.products());
+        return CommonApiResponse.success(productApplicationService.products());
     }
 
     @Operation(summary = "상위 상품 조회 API")
     @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProductResponse.class))))
     @GetMapping("/popular")
     public CommonApiResponse<List<ProductResponse>> topProducts() {
-        return CommonApiResponse.success(productUseCase.popularProducts());
+        return CommonApiResponse.success(productApplicationService.popularProducts());
     }
 }

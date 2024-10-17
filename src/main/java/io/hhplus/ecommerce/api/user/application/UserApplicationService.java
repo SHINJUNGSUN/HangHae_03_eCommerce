@@ -2,47 +2,24 @@ package io.hhplus.ecommerce.api.user.application;
 
 import io.hhplus.ecommerce.api.user.application.dto.UserPointRequest;
 import io.hhplus.ecommerce.api.user.application.dto.UserPointResponse;
-import io.hhplus.ecommerce.api.user.domain.PointHistory;
-import io.hhplus.ecommerce.api.user.domain.PointHistoryRepository;
-import io.hhplus.ecommerce.api.user.domain.User;
-import io.hhplus.ecommerce.api.user.domain.UserRepository;
+import io.hhplus.ecommerce.api.user.domain.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class UserApplicationService implements UserUseCase {
+public class UserApplicationService {
 
-    private final UserRepository userRepository;
-    private final PointHistoryRepository pointHistoryRepository;
+    private final UserService userService;
 
-    @Override
-    public UserPointResponse point(long userId) {
-
-        return UserPointResponse.from(userRepository.findByUserId(userId));
+    @Transactional(readOnly = true)
+    public UserPointResponse getPoint(long userId) {
+        return UserPointResponse.from(userService.getPoint(userId));
     }
 
-    @Override
+    @Transactional
     public UserPointResponse chargePoint(UserPointRequest request) {
-
-        User user = userRepository.findByUserId(request.userId());
-
-        user.chargePoint(request.amount());
-
-        pointHistoryRepository.save(PointHistory.createChargeHistory(request.userId(), request.amount()));
-
-        return UserPointResponse.from(userRepository.save(user));
-    }
-
-    @Override
-    public UserPointResponse usePoint(UserPointRequest request) {
-
-        User user = userRepository.findByUserId(request.userId());
-
-        user.usePoint(request.amount());
-
-        pointHistoryRepository.save(PointHistory.createUseHistory(request.userId(), request.amount()));
-
-        return UserPointResponse.from(userRepository.save(user));
+        return UserPointResponse.from(userService.chargePoint(request.userId(), request.amount()));
     }
 }

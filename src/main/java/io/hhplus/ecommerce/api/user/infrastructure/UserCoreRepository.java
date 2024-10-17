@@ -1,9 +1,9 @@
 package io.hhplus.ecommerce.api.user.infrastructure;
 
-import io.hhplus.ecommerce.api.user.domain.PointHistory;
-import io.hhplus.ecommerce.api.user.domain.PointHistoryRepository;
-import io.hhplus.ecommerce.api.user.domain.User;
-import io.hhplus.ecommerce.api.user.domain.UserRepository;
+import io.hhplus.ecommerce.api.user.domain.model.PointHistory;
+import io.hhplus.ecommerce.api.user.domain.repository.PointHistoryRepository;
+import io.hhplus.ecommerce.api.user.domain.model.User;
+import io.hhplus.ecommerce.api.user.domain.repository.UserRepository;
 import io.hhplus.ecommerce.common.enums.UserError;
 import io.hhplus.ecommerce.common.exception.UserException;
 import lombok.RequiredArgsConstructor;

@@ -33,3 +33,15 @@ CREATE TABLE `ecommerce`.`product`
     `stock`  BIGINT NOT NULL    COMMENT '재고',
     PRIMARY KEY (`id`)
 );
+
+DROP TABLE IF EXISTS `ecommerce`.`cart`;
+CREATE TABLE `ecommerce`.`cart`
+(
+    `id`    BIGINT  NOT NULL    AUTO_INCREMENT  COMMENT '장바구니 상품 고유 식별자',
+    `user_id`   BIGINT  NOT NULL    COMMENT '사용자 고유 식별자',
+    `product_id`   BIGINT  NOT NULL    COMMENT '상품 고유 식별자',
+    `quantity`  BIGINT NOT NULL    COMMENT '장바구니 상품 수량',
+    PRIMARY KEY (`id`),
+    INDEX `idx_user_id` (`user_id`),
+    INDEX `idx_product_id` (`product_id`)
+);

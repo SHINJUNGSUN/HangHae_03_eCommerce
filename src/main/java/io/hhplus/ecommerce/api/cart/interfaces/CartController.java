@@ -1,6 +1,9 @@
 package io.hhplus.ecommerce.api.cart.interfaces;
 
-import io.hhplus.ecommerce.api.cart.application.CartDto;
+import io.hhplus.ecommerce.api.cart.application.CartApplicationService;
+import io.hhplus.ecommerce.api.cart.application.dto.CartAddRequest;
+import io.hhplus.ecommerce.api.cart.application.dto.CartRemoveRequest;
+import io.hhplus.ecommerce.api.cart.application.dto.CartResponse;
 import io.hhplus.ecommerce.common.model.CommonApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -12,7 +15,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -21,41 +23,27 @@ import java.util.List;
 @Tag(name = "장바구니 API")
 public class CartController {
 
+    private final CartApplicationService cartApplicationService;
+
     @Operation(summary = "장바구니 목록 조회 API")
-    @Parameter(name = "userTsid", description = "사용자 고유 ID")
-    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = CartDto.CartResponse.class))))
-    @GetMapping("/{userTsid}")
-    public CommonApiResponse<List<CartDto.CartResponse>> carts(@PathVariable String userTsid) {
-
-        List<CartDto.CartResponse> data = new ArrayList<>();
-        data.add(new CartDto.CartResponse("C001", "P001", "키보드", 1, 120000));
-        data.add(new CartDto.CartResponse("C003", "P003", "해드셋", 2, 80000));
-
-        return CommonApiResponse.success(data);
+    @Parameter(name = "id", description = "사용자 고유 식별자")
+    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = CartResponse.class))))
+    @GetMapping("/{id}")
+    public CommonApiResponse<List<CartResponse>> carts(@PathVariable("id") long userId) {
+        return CommonApiResponse.success(cartApplicationService.getCarts(userId));
     }
 
     @Operation(summary = "장바구니 추가 API")
-    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = CartDto.CartResponse.class))))
+    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = CartResponse.class))))
     @PatchMapping("/add")
-    public CommonApiResponse<List<CartDto.CartResponse>> add(@RequestBody CartDto.CartAddRequest request) {
-
-        List<CartDto.CartResponse> data = new ArrayList<>();
-        data.add(new CartDto.CartResponse("C001", "P001", "키보드", 1, 120000));
-        data.add(new CartDto.CartResponse("C002", "P002", "마우스", 4, 50000));
-        data.add(new CartDto.CartResponse("C003", "P003", "해드셋", 2, 80000));
-
-        return CommonApiResponse.success(data);
+    public CommonApiResponse<List<CartResponse>> add(@RequestBody CartAddRequest request) {
+        return CommonApiResponse.success(cartApplicationService.addCart(request));
     }
 
     @Operation(summary = "장바구니 제거 API")
-    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = CartDto.CartResponse.class))))
+    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = CartResponse.class))))
     @PatchMapping("/remove")
-    public CommonApiResponse<List<CartDto.CartResponse>> remove(@RequestBody CartDto.CartRemoveRequest request) {
-
-        List<CartDto.CartResponse> data = new ArrayList<>();
-        data.add(new CartDto.CartResponse("C001", "P001", "키보드", 1, 120000));
-        data.add(new CartDto.CartResponse("C002", "P002", "마우스", 4, 50000));
-
-        return CommonApiResponse.success(data);
+    public CommonApiResponse<List<CartResponse>> remove(@RequestBody CartRemoveRequest request) {
+        return CommonApiResponse.success(cartApplicationService.removeCart(request));
     }
 }

@@ -8,7 +8,7 @@ public class UserException extends RuntimeException {
 
     private final UserError error;
 
-    public UserException(final UserError error) {
+    public UserException(UserError error) {
         this.error = error;
     }
 }

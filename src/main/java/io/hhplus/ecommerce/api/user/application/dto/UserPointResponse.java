@@ -1,6 +1,6 @@
 package io.hhplus.ecommerce.api.user.application.dto;
 
-import io.hhplus.ecommerce.api.user.domain.User;
+import io.hhplus.ecommerce.api.user.domain.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 

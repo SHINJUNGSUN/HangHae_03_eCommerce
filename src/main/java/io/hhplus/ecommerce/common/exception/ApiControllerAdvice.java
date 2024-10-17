@@ -1,5 +1,7 @@
 package io.hhplus.ecommerce.common.exception;
 
+import io.hhplus.ecommerce.common.enums.CartError;
+import io.hhplus.ecommerce.common.enums.ProductError;
 import io.hhplus.ecommerce.common.enums.UserError;
 import io.hhplus.ecommerce.common.model.CommonApiResponse;
 import io.hhplus.ecommerce.common.model.ErrorResponse;
@@ -15,6 +17,20 @@ public class ApiControllerAdvice {
     public CommonApiResponse<ErrorResponse> handleUserException(UserException e) {
         UserError error = e.getError();
         log.error("[{}] User Error: {}", error.getStatus(), error.getErrorMessage(), e);
+        return CommonApiResponse.error(error.getStatus(), error.getErrorCode(), error.getErrorMessage());
+    }
+
+    @ExceptionHandler(value = ProductException.class)
+    public CommonApiResponse<ErrorResponse> handleProductException(ProductException e) {
+        ProductError error = e.getError();
+        log.error("[{}] Product Error: {}", error.getStatus(), error.getErrorMessage(), e);
+        return CommonApiResponse.error(error.getStatus(), error.getErrorCode(), error.getErrorMessage());
+    }
+
+    @ExceptionHandler(value = CartException.class)
+    public CommonApiResponse<ErrorResponse> handleCartException(CartException e) {
+        CartError error = e.getError();
+        log.error("[{}] Cart Error: {}", error.getStatus(), error.getErrorMessage(), e);
         return CommonApiResponse.error(error.getStatus(), error.getErrorCode(), error.getErrorMessage());
     }
 

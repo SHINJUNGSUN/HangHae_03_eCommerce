@@ -1,6 +1,6 @@
 package io.hhplus.ecommerce.api.product.application.dto;
 
-import io.hhplus.ecommerce.api.product.domain.Product;
+import io.hhplus.ecommerce.api.product.domain.model.Product;
 import lombok.Builder;
 
 @Builder
