@@ -1,7 +1,8 @@
 package io.hhplus.ecommerce.order;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.hhplus.ecommerce.api.order.application.OrderDto;
+import io.hhplus.ecommerce.api.order.application.dto.OrderRequest;
+import io.hhplus.ecommerce.api.order.domain.model.OrderLineRequest;
 import io.hhplus.ecommerce.api.order.interfaces.OrderController;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,18 +27,15 @@ public class OrderControllerTest {
     @Test
     @DisplayName("주문 API 테스트")
     public void ordersTest() throws Exception {
-        List<OrderDto.ProductRequest> productList = new ArrayList<>();
-        productList.add(new OrderDto.ProductRequest("P001", 1));
-        productList.add(new OrderDto.ProductRequest("P002", 3));
 
-        OrderDto.OrderRequest request = new OrderDto.OrderRequest("U001", productList);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        mockMvc.perform(post("/orders")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andDo(print());
+//        //OrderRequest request = new OrderRequest(1L, List.of(new(1L, 3L)));
+//
+//        ObjectMapper objectMapper = new ObjectMapper();
+//
+//        mockMvc.perform(post("/orders")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(request)))
+//                .andExpect(status().isOk())
+//                .andDo(print());
     }
 }

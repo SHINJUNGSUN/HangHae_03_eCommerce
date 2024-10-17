@@ -1,5 +1,7 @@
 package io.hhplus.ecommerce.api.product.domain.model;
 
+import io.hhplus.ecommerce.common.enums.ProductError;
+import io.hhplus.ecommerce.common.exception.ProductException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,4 +22,17 @@ public class Product {
     private Long unitPrice;
 
     private Long stock;
+
+    public void outboundProduct(long quantity) {
+
+        if(quantity <= 0) {
+            throw new ProductException(ProductError.INVALID_QUANTITY);
+        }
+
+        if(this.stock < quantity) {
+            throw new ProductException(ProductError.INSUFFICIENT_STOCK);
+        }
+
+        this.stock -= quantity;
+    }
 }

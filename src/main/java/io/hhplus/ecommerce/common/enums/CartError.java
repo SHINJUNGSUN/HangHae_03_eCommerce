@@ -10,8 +10,8 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum CartError {
-    CART_NOT_FOUNT(HttpStatus.NOT_FOUND, 100001, "존재하지 않는 장바구니 상품"),
-    INVALID_QUANTITY(HttpStatus.BAD_REQUEST, 100002, "유효하지 않은 장바구니 상품 수량");
+    CART_NOT_FOUNT(HttpStatus.NOT_FOUND, 300001, "존재하지 않는 장바구니 상품"),
+    INVALID_QUANTITY(HttpStatus.BAD_REQUEST, 300002, "유효하지 않은 장바구니 상품 수량");
 
     HttpStatus status;
     int errorCode;

@@ -24,7 +24,7 @@ public class User {
     public void chargePoint(long amount) {
 
         if(amount <= 0) {
-            throw new UserException(UserError.INVALID_CHARGE_AMOUNT);
+            throw new UserException(UserError.INVALID_AMOUNT);
         }
 
         this.point += amount;
@@ -33,7 +33,7 @@ public class User {
     public void usePoint(long amount) {
 
         if(amount <= 0) {
-            throw new UserException(UserError.INVALID_USE_AMOUNT);
+            throw new UserException(UserError.INVALID_AMOUNT);
         }
 
         if(this.point < amount) {

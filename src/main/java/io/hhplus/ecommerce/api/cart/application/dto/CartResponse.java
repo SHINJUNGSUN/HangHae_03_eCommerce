@@ -13,14 +13,14 @@ public record CartResponse (
         String productName,
         @Schema(description = "장바구니 상품 수량")
         Long quantity,
-        @Schema(description = "상품 상태(AVAILABLE: 구매 가능, OUT_OF_STOCK: 품절)")
-        CartState state
+        @Schema(description = "장바구니 상품 상태 (AVAILABLE: 구매 가능, OUT_OF_STOCK: 품절)")
+        CartState cartState
 ) {
     public static CartResponse from(Cart cart) {
         return CartResponse.builder()
                 .productId(cart.getProduct().getId())
                 .productName(cart.getProduct().getProductName())
-                .state(cart.getProduct().getStock() == 0 ? CartState.OUT_OF_STOCK : CartState.AVAILABLE)
+                .cartState(cart.getProduct().getStock() < cart.getQuantity() ? CartState.OUT_OF_STOCK : CartState.AVAILABLE)
                 .quantity(cart.getQuantity())
                 .build();
     }

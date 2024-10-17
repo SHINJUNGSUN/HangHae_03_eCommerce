@@ -1,7 +1,6 @@
 package io.hhplus.ecommerce.payment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.hhplus.ecommerce.api.payment.application.PaymentDto;
 import io.hhplus.ecommerce.api.payment.interfaces.PaymentController;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
