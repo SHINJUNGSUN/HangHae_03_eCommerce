@@ -1,3 +1,17 @@
 spring:
   application:
     name: eCommerce
+  datasource:
+    url: jdbc:mysql://localhost:3306/ecommerce
+    username: ecommerce
+    password: 1q2w3e4r!!
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database: mysql
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
