@@ -25,12 +25,17 @@ public class CartCoreRepository implements CartRepository {
     }
 
     @Override
-    public void save(Cart cart) {
-        cartJpaRepository.save(cart);
+    public Cart save(Cart cart) {
+        return cartJpaRepository.save(cart);
     }
 
     @Override
     public void delete(Cart cart) {
         cartJpaRepository.delete(cart);
+    }
+
+    @Override
+    public void deleteAll() {
+        cartJpaRepository.deleteAll();
     }
 }

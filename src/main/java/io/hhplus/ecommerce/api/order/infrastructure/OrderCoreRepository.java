@@ -31,4 +31,9 @@ public class OrderCoreRepository implements OrderRepository, OrderLineRepository
     public Optional<Order> findById(long orderId) {
         return orderJpaRepository.findById(orderId);
     }
+
+    @Override
+    public void deleteAll() {
+        orderJpaRepository.deleteAll();
+    }
 }

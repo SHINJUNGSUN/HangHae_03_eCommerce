@@ -30,4 +30,9 @@ public class ProductCoreRepository implements ProductRepository {
     public Product save(Product product) {
         return productJpaRepository.save(product);
     }
+
+    @Override
+    public void deleteAll() {
+        productJpaRepository.deleteAll();
+    }
 }
