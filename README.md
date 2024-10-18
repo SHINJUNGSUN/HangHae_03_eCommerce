@@ -243,7 +243,7 @@ sequenceDiagram
 ### ver. 2주차 (2024년 10월 12일 ~ 2024년 10월 18일)
 - 과제 피드백 수정 사항 반영
 
-![img.png](docs/step06/img01.png)
+![img.png](docs/step06/img.png)
 
 </details>
 
@@ -710,6 +710,6 @@ sequenceDiagram
 
 ### Swagger: http://localhost:8080/swagger-ui/index.html
 
-![img.png](docs/step07/img01.png)
+![img.png](docs/step07/img.png)
 
 </details>

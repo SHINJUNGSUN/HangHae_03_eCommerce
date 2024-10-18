@@ -13,6 +13,8 @@ public record CartResponse (
         String productName,
         @Schema(description = "장바구니 상품 수량")
         Long quantity,
+        @Schema(description = "장바구니 상품 단가")
+        Long unitPrice,
         @Schema(description = "장바구니 상품 상태 (AVAILABLE: 구매 가능, OUT_OF_STOCK: 품절)")
         CartState cartState
 ) {
@@ -20,6 +22,7 @@ public record CartResponse (
         return CartResponse.builder()
                 .productId(cart.getProduct().getId())
                 .productName(cart.getProduct().getProductName())
+                .unitPrice(cart.getProduct().getUnitPrice())
                 .cartState(cart.getProduct().getStock() < cart.getQuantity() ? CartState.OUT_OF_STOCK : CartState.AVAILABLE)
                 .quantity(cart.getQuantity())
                 .build();
