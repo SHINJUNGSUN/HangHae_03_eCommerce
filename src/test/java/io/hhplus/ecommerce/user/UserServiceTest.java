@@ -1,9 +1,9 @@
 package io.hhplus.ecommerce.user;
 
-import io.hhplus.ecommerce.api.user.domain.model.User;
-import io.hhplus.ecommerce.api.user.domain.repository.PointHistoryRepository;
-import io.hhplus.ecommerce.api.user.domain.repository.UserRepository;
-import io.hhplus.ecommerce.api.user.domain.service.UserDomainService;
+import io.hhplus.ecommerce.user.infrastructure.User;
+import io.hhplus.ecommerce.user.domain.repository.PointHistoryRepository;
+import io.hhplus.ecommerce.user.domain.repository.UserRepository;
+import io.hhplus.ecommerce.user.application.service.UserDomainService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

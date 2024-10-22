@@ -1,7 +1,7 @@
 package io.hhplus.ecommerce.user;
 
-import io.hhplus.ecommerce.api.user.domain.model.User;
-import io.hhplus.ecommerce.common.exception.UserException;
+import io.hhplus.ecommerce.user.infrastructure.User;
+import io.hhplus.ecommerce.user.domain.exception.UserException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

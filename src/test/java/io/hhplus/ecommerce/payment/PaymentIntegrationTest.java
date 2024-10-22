@@ -1,19 +1,18 @@
 package io.hhplus.ecommerce.payment;
 
-import io.hhplus.ecommerce.api.order.domain.model.Order;
-import io.hhplus.ecommerce.api.order.domain.model.OrderLineRequest;
-import io.hhplus.ecommerce.api.order.domain.repository.OrderRepository;
-import io.hhplus.ecommerce.api.payment.application.PaymentApplicationService;
-import io.hhplus.ecommerce.api.payment.application.dto.PaymentRequest;
-import io.hhplus.ecommerce.api.payment.application.dto.PaymentResponse;
-import io.hhplus.ecommerce.api.payment.domain.model.PaymentStatus;
-import io.hhplus.ecommerce.api.product.domain.model.Product;
-import io.hhplus.ecommerce.api.product.domain.repository.ProductRepository;
-import io.hhplus.ecommerce.api.user.application.UserApplicationService;
-import io.hhplus.ecommerce.api.user.application.dto.UserPointRequest;
-import io.hhplus.ecommerce.api.user.domain.model.User;
-import io.hhplus.ecommerce.api.user.domain.repository.UserRepository;
-import io.hhplus.ecommerce.common.exception.OrderException;
+import io.hhplus.ecommerce.order.infrastructure.persistence.entity.OrderEntity;
+import io.hhplus.ecommerce.order.domain.repository.OrderRepository;
+import io.hhplus.ecommerce.payment.application.service.PaymentApplicationService;
+import io.hhplus.ecommerce.payment.application.dto.PaymentRequest;
+import io.hhplus.ecommerce.payment.application.dto.PaymentResponse;
+import io.hhplus.ecommerce.payment.domain.model.PaymentStatus;
+import io.hhplus.ecommerce.product.infrastructure.persistence.entity.ProductEntity;
+import io.hhplus.ecommerce.product.domain.repository.ProductRepository;
+import io.hhplus.ecommerce.user.application.service.UserApplicationService;
+import io.hhplus.ecommerce.user.application.dto.UserPointRequest;
+import io.hhplus.ecommerce.user.infrastructure.User;
+import io.hhplus.ecommerce.user.domain.repository.UserRepository;
+import io.hhplus.ecommerce.order.domain.exception.OrderException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -49,18 +48,18 @@ public class PaymentIntegrationTest {
 
     User user;
 
-    List<Product> products = new ArrayList<>();
+    List<ProductEntity> products = new ArrayList<>();
 
-    Order order;
+    OrderEntity order;
 
     @BeforeEach
     void setUp() {
         user = userRepository.save(User.builder().userName("Alice").point(0L).build());
 
-        products.add(productRepository.save(Product.builder().productName("Laptop").unitPrice(1500000L).stock(10L).build()));
-        products.add(productRepository.save(Product.builder().productName("Monitor").unitPrice(300000L).stock(15L).build()));
+        products.add(productRepository.save(ProductEntity.builder().productName("Laptop").unitPrice(1500000L).stock(10L).build()));
+        products.add(productRepository.save(ProductEntity.builder().productName("Monitor").unitPrice(300000L).stock(15L).build()));
 
-        order = Order.create(user.getId());
+        order = OrderEntity.create(user.getId());
         order.addOrderLine(new OrderLineRequest(products.get(0), 1L));
         order.addOrderLine(new OrderLineRequest(products.get(1), 2L));
         order = orderRepository.save(order);

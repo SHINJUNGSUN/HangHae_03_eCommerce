@@ -1,11 +1,11 @@
 package io.hhplus.ecommerce.user;
 
-import io.hhplus.ecommerce.api.user.application.UserApplicationService;
-import io.hhplus.ecommerce.api.user.application.dto.UserPointRequest;
-import io.hhplus.ecommerce.api.user.application.dto.UserPointResponse;
-import io.hhplus.ecommerce.api.user.domain.model.User;
-import io.hhplus.ecommerce.api.user.domain.repository.UserRepository;
-import io.hhplus.ecommerce.common.exception.UserException;
+import io.hhplus.ecommerce.user.application.service.UserApplicationService;
+import io.hhplus.ecommerce.user.application.dto.UserPointRequest;
+import io.hhplus.ecommerce.user.application.dto.UserPointResponse;
+import io.hhplus.ecommerce.user.infrastructure.User;
+import io.hhplus.ecommerce.user.domain.repository.UserRepository;
+import io.hhplus.ecommerce.user.domain.exception.UserException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,10 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

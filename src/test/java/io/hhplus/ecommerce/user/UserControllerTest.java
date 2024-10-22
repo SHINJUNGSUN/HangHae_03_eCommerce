@@ -1,9 +1,9 @@
 package io.hhplus.ecommerce.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.hhplus.ecommerce.api.user.application.UserApplicationService;
-import io.hhplus.ecommerce.api.user.application.dto.UserPointRequest;
-import io.hhplus.ecommerce.api.user.interfaces.UserController;
+import io.hhplus.ecommerce.user.application.service.UserApplicationService;
+import io.hhplus.ecommerce.user.application.dto.UserPointRequest;
+import io.hhplus.ecommerce.user.interfaces.UserController;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
