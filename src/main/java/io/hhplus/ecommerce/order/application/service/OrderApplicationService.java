@@ -1,47 +1,49 @@
 package io.hhplus.ecommerce.order.application.service;
 
-import io.hhplus.ecommerce.order.domain.exception.OrderException;
-import io.hhplus.ecommerce.order.application.dto.OrderRequest;
-import io.hhplus.ecommerce.order.application.dto.OrderResponse;
-import io.hhplus.ecommerce.order.domain.exception.OrderExceptionType;
 import io.hhplus.ecommerce.order.domain.model.Order;
 import io.hhplus.ecommerce.order.domain.model.OrderLine;
-import io.hhplus.ecommerce.order.domain.repository.OrderLineRepository;
 import io.hhplus.ecommerce.order.domain.repository.OrderRepository;
-import io.hhplus.ecommerce.product.domain.model.Product;
-import io.hhplus.ecommerce.product.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class OrderApplicationService implements OrderService {
 
     private final OrderRepository orderRepository;
-    private final OrderLineRepository orderLineRepository;
-    private final ProductRepository productRepository;
 
     @Override
-    @Transactional
-    public OrderResponse createOrder(OrderRequest orderRequest) {
+    public Optional<Order> getOrder(long orderId) {
+        return orderRepository.findById(orderId)
+                .map(order -> {
+                    orderRepository.findByOrderId(orderId).forEach(order::addOrderLine);
+                    return order;
+                });
+    }
 
-        Order order = orderRepository.save(Order.create(orderRequest.userId()));
+    @Override
+    public Order createOrder(long userSeq, List<OrderLine> orderLines) {
 
-        orderRequest.OrderProductList()
-                .stream()
-                .map(orderProduct -> {
-                    Product product = productRepository.findByProductId(orderProduct.productId())
-                            .orElseThrow(() ->new OrderException(OrderExceptionType.PRODUCT_NOT_FOUND));
+        Order order = orderRepository.save(Order.create(userSeq));
 
-                    if(product.getStock() < orderProduct.amount()) {
-                        throw new OrderException(OrderExceptionType.INSUFFICIENT_STOCK);
-                    }
-
-                    return orderLineRepository.save(OrderLine.create(order.getOrderId(), order.getOrderId(), product));
+        orderLines.stream()
+                .map(orderLine -> {
+                    orderLine.setOrderId(order.getOrderId());
+                    return orderRepository.save(orderLine);
                 })
                 .forEach(order::addOrderLine);
 
-        return OrderResponse.from(order);
+        return order;
+    }
+
+    @Override
+    public void completeOrder(Order order) {
+
+        order.completeOrder();
+
+        orderRepository.save(order);
     }
 }

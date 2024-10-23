@@ -1,10 +1,12 @@
 package io.hhplus.ecommerce.product.application.service;
 
-import io.hhplus.ecommerce.product.application.dto.ProductResponse;
+import io.hhplus.ecommerce.product.domain.model.Product;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductService {
-    List<ProductResponse> getProducts();
-    List<ProductResponse> getPopularProducts();
+    Optional<Product> getProduct(long productId);
+    List<Product> getProducts();
+    List<Product> getPopularProducts();
 }

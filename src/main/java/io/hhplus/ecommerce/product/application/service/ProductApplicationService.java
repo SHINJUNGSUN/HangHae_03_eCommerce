@@ -1,7 +1,7 @@
 package io.hhplus.ecommerce.product.application.service;
 
-import io.hhplus.ecommerce.order.domain.repository.OrderLineRepository;
 import io.hhplus.ecommerce.product.application.dto.ProductResponse;
+import io.hhplus.ecommerce.product.domain.model.Product;
 import io.hhplus.ecommerce.product.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +18,11 @@ public class ProductApplicationService implements ProductService {
 
     private final ProductRepository productRepository;
     private final OrderLineRepository orderLineRepository;
+
+    @Override
+    public Optional<Product> getProduct(long productId) {
+        return productRepository.findByProductId(productId);
+    }
 
     @Override
     public List<ProductResponse> getProducts() {

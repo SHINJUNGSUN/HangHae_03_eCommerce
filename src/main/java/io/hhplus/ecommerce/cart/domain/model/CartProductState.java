@@ -1,10 +1,10 @@
-package io.hhplus.ecommerce.user.domain.model;
+package io.hhplus.ecommerce.cart.domain.model;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public enum TransactionType {
-    USE,
-    CHARGE
+public enum CartProductState {
+    AVAILABLE,
+    OUT_OF_STOCK
 }

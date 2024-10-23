@@ -24,7 +24,7 @@ public class UserEntity {
 
     private Long point;
 
-    public static UserEntity of(User user) {
+    public static UserEntity from(User user) {
         return UserEntity.builder()
                 .id(user.getUserSeq())
                 .userId(user.getUserId())
@@ -34,7 +34,7 @@ public class UserEntity {
                 .build();
     }
 
-    public User toDomain() {
+    public User toUser() {
         UserPoint userPoint = UserPoint.builder()
                 .point(this.point)
                 .build();

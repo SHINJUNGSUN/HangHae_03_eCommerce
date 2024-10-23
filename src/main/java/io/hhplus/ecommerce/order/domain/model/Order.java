@@ -1,6 +1,5 @@
 package io.hhplus.ecommerce.order.domain.model;
 
-import io.hhplus.ecommerce.product.domain.model.Product;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -36,5 +35,9 @@ public class Order {
         return orderLines.stream()
                 .mapToLong(OrderLine::totalPrice)
                 .sum();
+    }
+
+    public void completeOrder() {
+        this.orderStatus = OrderStatus.COMPLETED;
     }
 }

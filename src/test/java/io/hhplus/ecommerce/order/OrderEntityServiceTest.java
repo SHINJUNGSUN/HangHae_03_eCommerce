@@ -1,7 +1,6 @@
 package io.hhplus.ecommerce.order;
 
 import io.hhplus.ecommerce.order.infrastructure.persistence.entity.OrderEntity;
-import io.hhplus.ecommerce.order.domain.repository.OrderLineRepository;
 import io.hhplus.ecommerce.order.domain.repository.OrderRepository;
 import io.hhplus.ecommerce.order.application.service.OrderDomainService;
 import io.hhplus.ecommerce.order.domain.exception.OrderException;

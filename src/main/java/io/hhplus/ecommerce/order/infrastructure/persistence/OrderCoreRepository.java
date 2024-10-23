@@ -3,7 +3,6 @@ package io.hhplus.ecommerce.order.infrastructure.persistence;
 import io.hhplus.ecommerce.order.domain.model.Order;
 import io.hhplus.ecommerce.order.domain.model.OrderLine;
 import io.hhplus.ecommerce.order.infrastructure.persistence.entity.OrderEntity;
-import io.hhplus.ecommerce.order.domain.repository.OrderLineRepository;
 import io.hhplus.ecommerce.order.domain.repository.OrderRepository;
 import io.hhplus.ecommerce.order.infrastructure.persistence.entity.OrderLineEntity;
 import lombok.RequiredArgsConstructor;
@@ -17,31 +16,31 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class OrderCoreRepository implements OrderRepository, OrderLineRepository {
+public class OrderCoreRepository implements OrderRepository {
 
     private final OrderJpaRepository orderJpaRepository;
     private final OrderLineJpaRepository orderLineJpaRepository;
 
     @Override
     public Order save(Order order) {
-        return orderJpaRepository.save(OrderEntity.of(order)).toDomain();
+        return orderJpaRepository.save(OrderEntity.from(order)).toOrder();
     }
 
     @Override
     public OrderLine save(OrderLine orderLine) {
-        return orderLineJpaRepository.save(OrderLineEntity.of(orderLine)).toDomain();
+        return orderLineJpaRepository.save(OrderLineEntity.from(orderLine)).toOrderLine();
     }
 
     @Override
     public Optional<Order> findById(long orderId) {
-        return orderJpaRepository.findById(orderId).map(OrderEntity::toDomain);
+        return orderJpaRepository.findById(orderId).map(OrderEntity::toOrder);
     }
 
     @Override
     public List<OrderLine> findByOrderId(Long orderId) {
         return orderLineJpaRepository.findByOrderId(orderId)
                 .stream()
-                .map(OrderLineEntity::toDomain)
+                .map(OrderLineEntity::toOrderLine)
                 .toList();
     }
 

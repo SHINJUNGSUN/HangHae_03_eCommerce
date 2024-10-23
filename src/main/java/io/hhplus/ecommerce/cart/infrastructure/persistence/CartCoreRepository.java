@@ -19,23 +19,23 @@ public class CartCoreRepository implements CartRepository {
     public List<Cart> findByUserSeq(long userSeq) {
         return cartJpaRepository.findByUserSeq(userSeq)
                 .stream()
-                .map(CartEntity::toDomain)
+                .map(CartEntity::toCart)
                 .toList();
     }
 
     @Override
     public Optional<Cart> findByUserSeqAndProductId(long userSeq, long productId) {
         return cartJpaRepository.findByUserSeqAndProductId(userSeq, productId)
-                .map(CartEntity::toDomain);
+                .map(CartEntity::toCart);
     }
 
     @Override
     public void save(Cart cart) {
-        cartJpaRepository.save(CartEntity.of(cart));
+        cartJpaRepository.save(CartEntity.from(cart));
     }
 
     @Override
     public void delete(Cart cart) {
-        cartJpaRepository.delete(CartEntity.of(cart));
+        cartJpaRepository.delete(CartEntity.from(cart));
     }
 }

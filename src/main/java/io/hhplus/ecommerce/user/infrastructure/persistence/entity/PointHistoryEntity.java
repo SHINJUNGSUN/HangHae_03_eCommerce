@@ -24,7 +24,7 @@ public class PointHistoryEntity extends TimeStamped {
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType;
 
-    public static PointHistoryEntity of(PointHistory pointHistory) {
+    public static PointHistoryEntity from(PointHistory pointHistory) {
         return PointHistoryEntity.builder()
                 .id(pointHistory.getPointHistoryId())
                 .userSeq(pointHistory.getUserSeq())

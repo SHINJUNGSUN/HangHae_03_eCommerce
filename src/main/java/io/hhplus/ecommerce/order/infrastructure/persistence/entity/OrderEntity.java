@@ -24,7 +24,7 @@ public class OrderEntity extends TimeStamped {
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
-    public static OrderEntity of(Order order) {
+    public static OrderEntity from(Order order) {
         return OrderEntity.builder()
                 .id(order.getOrderId())
                 .userSeq(order.getUserSeq())
@@ -32,7 +32,7 @@ public class OrderEntity extends TimeStamped {
                 .build();
     }
 
-    public Order toDomain() {
+    public Order toOrder() {
         return Order.builder()
                 .orderId(this.id)
                 .userSeq(this.userSeq)
@@ -40,32 +40,4 @@ public class OrderEntity extends TimeStamped {
                 .orderLines(new ArrayList<>())
                 .build();
     }
-
-//    public static OrderEntity create(long userId) {
-//        return OrderEntity.builder()
-//                .userId(userId)
-//                .orderStatus(OrderStatus.PENDING)
-//                .createdAt(LocalDateTime.now())
-//                .updatedAt(LocalDateTime.now())
-//                .orderLines(new ArrayList<>())
-//                .build();
-//    }
-//
-//    public void addOrderLine(OrderLineRequest orderLineRequest) {
-//        this.orderLines.add(
-//                OrderLine.builder()
-//                        .productId(orderLineRequest.product().getId())
-//                        .productName(orderLineRequest.product().getProductName())
-//                        .unitPrice(orderLineRequest.product().getUnitPrice())
-//                        .quantity(orderLineRequest.quantity())
-//                        .createdAt(LocalDateTime.now())
-//                        .order(this)
-//                        .build());
-//    }
-//
-//    public void completeOrder() {
-//        this.orderStatus = OrderStatus.COMPLETED;
-//    }
-//
-
 }

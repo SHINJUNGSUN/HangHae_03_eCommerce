@@ -1,7 +1,8 @@
 package io.hhplus.ecommerce.cart.application.dto;
 
 import io.hhplus.ecommerce.cart.domain.model.Cart;
-import io.hhplus.ecommerce.cart.domain.model.CartState;
+import io.hhplus.ecommerce.cart.domain.model.CartProductState;
+import io.hhplus.ecommerce.product.domain.model.Product;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record CartResponse (
@@ -14,15 +15,15 @@ public record CartResponse (
         @Schema(description = "장바구니 상품 수량")
         Long quantity,
         @Schema(description = "장바구니 상품 상태 (AVAILABLE: 구매 가능, OUT_OF_STOCK: 재고 부족)")
-        CartState cartState
+        CartProductState cartProductState
 ) {
-    public static CartResponse from(Cart cart) {
+    public static CartResponse of(Cart cart, Product product) {
         return new CartResponse(
-                cart.getProduct().getProductId(),
-                cart.getProduct().getProductName(),
-                cart.getProduct().getUnitPrice(),
+                product.getProductId(),
+                product.getProductName(),
+                product.getUnitPrice(),
                 cart.getQuantity(),
-                cart.getProduct().getStock() > cart.getQuantity() ? CartState.AVAILABLE : CartState.OUT_OF_STOCK
+                product.getStock() < cart.getQuantity() ? CartProductState.OUT_OF_STOCK : CartProductState.AVAILABLE
         );
     }
 }

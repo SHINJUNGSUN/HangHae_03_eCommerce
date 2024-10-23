@@ -14,6 +14,6 @@ public class PaymentCoreRepository implements PaymentRepository {
 
     @Override
     public Payment save(Payment payment) {
-        return paymentJpaRepository.save(PaymentEntity.of(payment)).toDomain();
+        return paymentJpaRepository.save(PaymentEntity.from(payment)).toPayment();
     }
 }

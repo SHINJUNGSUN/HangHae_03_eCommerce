@@ -26,7 +26,7 @@ public class PaymentEntity extends TimeStamped {
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
 
-    public static PaymentEntity of(Payment payment) {
+    public static PaymentEntity from(Payment payment) {
         return PaymentEntity.builder()
                 .id(payment.getPaymentId())
                 .userSeq(payment.getUserSeq())
@@ -36,7 +36,7 @@ public class PaymentEntity extends TimeStamped {
                 .build();
     }
 
-    public Payment toDomain() {
+    public Payment toPayment() {
         return Payment.builder()
                 .paymentId(this.id)
                 .userSeq(this.userSeq)

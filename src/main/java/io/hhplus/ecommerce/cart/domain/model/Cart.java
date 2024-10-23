@@ -3,15 +3,12 @@ package io.hhplus.ecommerce.cart.domain.model;
 import io.hhplus.ecommerce.cart.domain.exception.CartException;
 import io.hhplus.ecommerce.cart.domain.exception.CartExceptionType;
 import io.hhplus.ecommerce.product.domain.model.Product;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Cart {
 
     private Long cartId;
@@ -21,25 +18,25 @@ public class Cart {
     @Builder.Default
     private Long quantity = 0L;
 
-    private Product product;
+    private Long productId;
 
-    public static Cart create(long userSeq, Product product) {
+    public static Cart create(long userSeq, long productId) {
         return Cart.builder()
                 .userSeq(userSeq)
-                .product(product)
+                .productId(productId)
                 .build();
     }
 
-    public void addCart(long amount) {
+    public void addCart(long quantity, Product product) {
 
-        if (amount <= 0) {
+        if (quantity <= 0) {
             throw new CartException(CartExceptionType.INVALID_AMOUNT);
         }
 
-        if (product.getStock() < this.quantity + amount) {
+        if (product.getStock() < this.quantity + quantity) {
             throw new CartException(CartExceptionType.INSUFFICIENT_STOCK);
         }
 
-        this.quantity += amount;
+        this.quantity += quantity;
     }
 }

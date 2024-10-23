@@ -1,7 +1,6 @@
 package io.hhplus.ecommerce.user;
 
 import io.hhplus.ecommerce.user.infrastructure.User;
-import io.hhplus.ecommerce.user.domain.repository.PointHistoryRepository;
 import io.hhplus.ecommerce.user.domain.repository.UserRepository;
 import io.hhplus.ecommerce.user.application.service.UserDomainService;
 import org.junit.jupiter.api.AfterEach;
@@ -12,7 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 import static org.mockito.MockitoAnnotations.openMocks;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class UserServiceTest {

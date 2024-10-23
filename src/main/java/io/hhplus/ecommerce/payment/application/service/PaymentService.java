@@ -1,8 +1,8 @@
 package io.hhplus.ecommerce.payment.application.service;
 
-import io.hhplus.ecommerce.payment.application.dto.PaymentRequest;
-import io.hhplus.ecommerce.payment.application.dto.PaymentResponse;
+import io.hhplus.ecommerce.order.domain.model.Order;
+import io.hhplus.ecommerce.payment.domain.model.Payment;
 
 public interface PaymentService {
-    PaymentResponse payment(PaymentRequest request);
+    Payment payment(long userSeq, Order order);
 }

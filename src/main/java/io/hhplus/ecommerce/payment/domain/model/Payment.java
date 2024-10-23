@@ -1,5 +1,6 @@
 package io.hhplus.ecommerce.payment.domain.model;
 
+import io.hhplus.ecommerce.order.domain.model.Order;
 import lombok.*;
 
 @Getter
@@ -18,12 +19,12 @@ public class Payment {
 
     private PaymentStatus paymentStatus;
 
-    public static Payment create(long userSeq, long orderId, long amount, PaymentStatus paymentStatus) {
+    public static Payment ofSuccess(long userSeq, Order order) {
         return Payment.builder()
                 .userSeq(userSeq)
-                .orderId(orderId)
-                .amount(amount)
-                .paymentStatus(paymentStatus)
+                .orderId(order.getOrderId())
+                .amount(order.totalPrice())
+                .paymentStatus(PaymentStatus.SUCCESS)
                 .build();
     }
 }

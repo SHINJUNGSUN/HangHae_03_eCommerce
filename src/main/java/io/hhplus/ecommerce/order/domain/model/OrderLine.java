@@ -21,14 +21,17 @@ public class OrderLine {
 
     private Long quantity;
 
-    public static OrderLine create(long orderId, long amount, Product product) {
+    public static OrderLine create(long quantity, Product product) {
         return OrderLine.builder()
-                .orderId(orderId)
                 .productId(product.getProductId())
                 .productName(product.getProductName())
                 .unitPrice(product.getUnitPrice())
-                .quantity(amount)
+                .quantity(quantity)
                 .build();
+    }
+
+    public void setOrderId(long orderId) {
+        this.orderId = orderId;
     }
 
     public Long totalPrice() {

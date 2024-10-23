@@ -2,7 +2,6 @@ package io.hhplus.ecommerce.cart.infrastructure.persistence.entity;
 
 import io.hhplus.ecommerce.cart.domain.model.Cart;
 import io.hhplus.ecommerce.common.model.TimeStamped;
-import io.hhplus.ecommerce.product.infrastructure.persistence.entity.ProductEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,21 +24,21 @@ public class CartEntity extends TimeStamped {
 
     private Long productId;
 
-    public static CartEntity of(Cart cart) {
+    public static CartEntity from(Cart cart) {
         return CartEntity.builder()
                 .id(cart.getCartId())
                 .userSeq(cart.getUserSeq())
                 .quantity(cart.getQuantity())
-                .productId(cart.get)
+                .productId(cart.getProductId())
                 .build();
     }
 
-    public Cart toDomain() {
+    public Cart toCart() {
         return Cart.builder()
                 .cartId(this.id)
                 .userSeq(this.userSeq)
                 .quantity(this.quantity)
-                .product(product.toDomain())
+                .productId(this.productId)
                 .build();
     }
 }

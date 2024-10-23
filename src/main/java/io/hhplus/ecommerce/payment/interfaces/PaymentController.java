@@ -1,6 +1,6 @@
 package io.hhplus.ecommerce.payment.interfaces;
 
-import io.hhplus.ecommerce.payment.application.service.PaymentApplicationService;
+import io.hhplus.ecommerce.payment.application.PaymentFacade;
 import io.hhplus.ecommerce.payment.application.dto.PaymentRequest;
 import io.hhplus.ecommerce.payment.application.dto.PaymentResponse;
 import io.hhplus.ecommerce.common.model.CommonApiResponse;
@@ -21,12 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "결제 API")
 public class PaymentController {
 
-    private final PaymentApplicationService paymentApplicationService;
+    private final PaymentFacade paymentFacade;
 
     @Operation(summary = "결제 API")
     @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PaymentResponse.class)))
     @PostMapping()
     public CommonApiResponse<PaymentResponse> payment(@RequestBody PaymentRequest request) {
-        return CommonApiResponse.success(paymentApplicationService.payment(request));
+        return CommonApiResponse.success(paymentFacade.payment(request));
     }
 }
