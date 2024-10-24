@@ -4,6 +4,7 @@ import io.hhplus.ecommerce.cart.application.CartFacade;
 import io.hhplus.ecommerce.cart.application.dto.CartAddRequest;
 import io.hhplus.ecommerce.cart.application.dto.CartRemoveRequest;
 import io.hhplus.ecommerce.cart.application.dto.CartResponse;
+import io.hhplus.ecommerce.common.annotation.CurrentUser;
 import io.hhplus.ecommerce.common.model.CommonApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("carts")
+@RequestMapping("api/carts")
 @RequiredArgsConstructor
 @Tag(name = "장바구니 API")
 public class CartController {
@@ -28,22 +29,22 @@ public class CartController {
     @Operation(summary = "장바구니 목록 조회 API")
     @Parameter(name = "userSeq", description = "사용자 고유 식별자")
     @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = CartResponse.class))))
-    @GetMapping("/{userSeq}")
-    public CommonApiResponse<List<CartResponse>> getCarts(@PathVariable() long userSeq) {
+    @GetMapping("/")
+    public CommonApiResponse<List<CartResponse>> getCarts(@Parameter(hidden = true) @CurrentUser long userSeq) {
         return CommonApiResponse.success(cartFacade.getCarts(userSeq));
     }
 
     @Operation(summary = "장바구니 추가 API")
     @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = CartResponse.class))))
     @PostMapping()
-    public CommonApiResponse<List<CartResponse>> postCarts(@RequestBody CartAddRequest request) {
-        return CommonApiResponse.success(cartFacade.addCart(request));
+    public CommonApiResponse<List<CartResponse>> postCarts(@Parameter(hidden = true) @CurrentUser long userSeq, @RequestBody CartAddRequest request) {
+        return CommonApiResponse.success(cartFacade.addCart(userSeq, request));
     }
 
     @Operation(summary = "장바구니 제거 API")
     @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = CartResponse.class))))
     @DeleteMapping()
-    public CommonApiResponse<List<CartResponse>> deleteCarts(@RequestBody CartRemoveRequest request) {
-        return CommonApiResponse.success(cartFacade.removeCart(request));
+    public CommonApiResponse<List<CartResponse>> deleteCarts(@Parameter(hidden = true) @CurrentUser long userSeq, @RequestBody CartRemoveRequest request) {
+        return CommonApiResponse.success(cartFacade.removeCart(userSeq, request));
     }
 }

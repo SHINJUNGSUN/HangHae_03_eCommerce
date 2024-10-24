@@ -23,6 +23,11 @@ public class UserCoreRepository implements UserRepository {
     }
 
     @Override
+    public Optional<User> findByUserId(String userId) {
+        return userJpaRepository.findByUserId(userId).map(UserEntity::toUser);
+    }
+
+    @Override
     public User save(User user) {
         return userJpaRepository.save(UserEntity.from(user)).toUser();
     }

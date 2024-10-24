@@ -32,12 +32,12 @@ public class CartFacade {
     }
 
     @Transactional
-    public List<CartResponse> addCart(CartAddRequest request) {
+    public List<CartResponse> addCart(long userSeq, CartAddRequest request) {
 
         Product product = productService.getProduct(request.productId())
                 .orElseThrow(() -> new IllegalStateException(ExceptionMessage.PRODUCT_NOT_FOUND.getMessage()));
 
-        return cartService.addCart(request.userSeq(), request.quantity(), product)
+        return cartService.addCart(userSeq, request.quantity(), product)
                 .stream()
                 .map(cart -> CartResponse.of(
                         CartProduct.ofCartAndProduct(cart, productService.getProduct(cart.getProductId())
@@ -46,8 +46,8 @@ public class CartFacade {
     }
 
     @Transactional
-    public List<CartResponse> removeCart(CartRemoveRequest request) {
-        return cartService.removeCart(request.userSeq(), request.productId())
+    public List<CartResponse> removeCart(long userSeq, CartRemoveRequest request) {
+        return cartService.removeCart(userSeq, request.productId())
                 .stream()
                 .map(cart -> CartResponse.of(
                         CartProduct.ofCartAndProduct(cart, productService.getProduct(cart.getProductId())

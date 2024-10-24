@@ -21,7 +21,7 @@ public class OrderFacade {
     private final ProductService productService;
 
     @Transactional
-    public OrderResponse createOrder(OrderRequest request) {
+    public OrderResponse createOrder(long userSeq, OrderRequest request) {
 
         List<OrderLine> orderLines = request.OrderProductList()
                 .stream()
@@ -37,6 +37,6 @@ public class OrderFacade {
                 })
                 .toList();
 
-        return OrderResponse.from(orderService.createOrder(request.userSeq(), orderLines));
+        return OrderResponse.from(orderService.createOrder(userSeq, orderLines));
     }
 }

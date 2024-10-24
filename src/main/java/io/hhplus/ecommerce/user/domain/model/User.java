@@ -17,4 +17,13 @@ public class User {
     private String userName;
 
     private UserPoint userPoint;
+
+    public static User signUp(String userId, String encodedPassword, String userName) {
+        return User.builder()
+                .userId(userId)
+                .password(encodedPassword)
+                .userName(userName)
+                .userPoint(UserPoint.of(0L))
+                .build();
+    }
 }

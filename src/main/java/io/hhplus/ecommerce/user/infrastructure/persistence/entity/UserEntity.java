@@ -1,5 +1,6 @@
 package io.hhplus.ecommerce.user.infrastructure.persistence.entity;
 
+import io.hhplus.ecommerce.common.model.TimeStamped;
 import io.hhplus.ecommerce.user.domain.model.User;
 import io.hhplus.ecommerce.user.domain.model.UserPoint;
 import jakarta.persistence.*;
@@ -10,7 +11,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserEntity {
+public class UserEntity extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,16 +36,12 @@ public class UserEntity {
     }
 
     public User toUser() {
-        UserPoint userPoint = UserPoint.builder()
-                .point(this.point)
-                .build();
-
         return User.builder()
                 .userSeq(this.id)
                 .userId(this.userId)
                 .password(this.password)
                 .userName(this.userName)
-                .userPoint(userPoint)
+                .userPoint(UserPoint.of(this.point))
                 .build();
     }
 }
