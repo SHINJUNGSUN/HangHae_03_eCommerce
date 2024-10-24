@@ -21,15 +21,15 @@ public class PaymentFacade {
     private final PaymentService paymentService;
 
     @Transactional
-    public PaymentResponse payment(PaymentRequest request) {
+    public PaymentResponse payment(long userSeq, PaymentRequest request) {
 
         Order order = orderService.getOrder(request.orderId(), OrderStatus.PENDING)
                 .orElseThrow(() -> new IllegalStateException(ExceptionMessage.ORDER_NOT_FOUND.getMessage()));
 
-        userPointService.usePoint(request.userId(), order.totalPrice());
+        userPointService.usePoint(userSeq, order.totalPrice());
 
         orderService.updateOrderStatus(OrderStatus.COMPLETED, order);
 
-        return PaymentResponse.from(paymentService.payment(request.userId(), order));
+        return PaymentResponse.from(paymentService.payment(userSeq, order));
     }
 }

@@ -19,7 +19,7 @@ public class ApiControllerAdvice {
 
     @ExceptionHandler(value = IllegalStateException.class)
     public CommonApiResponse<ErrorResponse> handleIllegalStateException(IllegalStateException e) {
-        log.error("[{}] IllegalStateException: {}", HttpStatus.NOT_FOUND, e.getMessage(), e);
+        log.error("[{}] IllegalStateException: {}", HttpStatus.BAD_REQUEST, e.getMessage(), e);
         return CommonApiResponse.error(HttpStatus.NOT_FOUND, e.getMessage());
     }
 

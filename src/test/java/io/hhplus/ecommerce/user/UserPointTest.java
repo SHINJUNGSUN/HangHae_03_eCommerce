@@ -51,7 +51,7 @@ public class UserPointTest {
         userPoint.usePoint(chargeAmount);
 
         // Then
-        assertEquals(1L, userPoint.getPoint());
+        assertEquals(0L, userPoint.getPoint());
     }
 
     @Test

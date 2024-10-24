@@ -10,6 +10,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum ExceptionMessage {
     USER_NOT_FOUND("존재하지 않는 사용자입니다."),
+    ALREADY_SIGNED_UP("이미 가입한 사용자입니다."),
     INVALID_AMOUNT("유효하지 않은 포인트입니다."),
     INSUFFICIENT_POINT("사용자 포인트가 부족합니다."),
     PRODUCT_NOT_FOUND("상품이 존재하지 않습니다."),

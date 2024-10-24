@@ -1,8 +1,8 @@
 package io.hhplus.ecommerce.user.application;
 
-import io.hhplus.ecommerce.user.application.dto.UserPointRequest;
-import io.hhplus.ecommerce.user.application.dto.UserPointResponse;
+import io.hhplus.ecommerce.user.application.dto.*;
 import io.hhplus.ecommerce.user.application.service.UserPointService;
+import io.hhplus.ecommerce.user.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,15 +11,23 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserFacade {
 
+    private final UserService userService;
     private final UserPointService userPointService;
 
-    @Transactional(readOnly = true)
+    public UserSignUpResponse signUp(UserSignUpRequest request) {
+        return UserSignUpResponse.from(userService.signUp(request.userId(), request.password(), request.userName()));
+    }
+
+    public UserLoginResponse login(UserLoginRequest request) {
+        return UserLoginResponse.of(userService.login(request.userId(), request.password()));
+    }
+
     public UserPointResponse getPoint(long userSeq) {
         return UserPointResponse.from(userPointService.getPoint(userSeq));
     }
 
     @Transactional
-    public UserPointResponse chargePoint(UserPointRequest request) {
-        return UserPointResponse.from(userPointService.chargePoint(request.userSeq(), request.amount()));
+    public UserPointResponse chargePoint(long userSeq, UserPointRequest request) {
+        return UserPointResponse.from(userPointService.chargePoint(userSeq, request.amount()));
     }
 }

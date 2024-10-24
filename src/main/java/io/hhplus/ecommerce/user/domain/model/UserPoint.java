@@ -14,6 +14,12 @@ public class UserPoint {
 
     private Long point;
 
+    public static UserPoint of(Long point) {
+        return UserPoint.builder()
+                .point(point)
+                .build();
+    }
+
     public void chargePoint(long amount) {
 
         if(amount <= 0) {
