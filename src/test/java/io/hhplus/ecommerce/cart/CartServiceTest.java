@@ -107,7 +107,7 @@ public class CartServiceTest {
                 .productId(product.getProductId())
                 .build();
 
-        when(cartRepository.findByUserSeqAndProductId(userSeq, product.getProductId())).thenReturn(Optional.empty());
+        when(cartRepository.findByUserSeqAndProductId(userSeq, product.getProductId())).thenReturn(Optional.of(cart));
         when(cartRepository.findByUserSeq(userSeq)).thenReturn(List.of());
 
         // when
@@ -127,6 +127,6 @@ public class CartServiceTest {
         when(cartRepository.findByUserSeqAndProductId(userSeq, product.getProductId())).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(CartException.class, () -> cartApplicationService.removeCart(userSeq, productId));
+        assertThrows(IllegalStateException.class, () -> cartApplicationService.removeCart(userSeq, productId));
     }
 }

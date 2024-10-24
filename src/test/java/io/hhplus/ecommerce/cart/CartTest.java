@@ -47,7 +47,7 @@ public class CartTest {
         long quantity = -1L;
 
         // When & Then
-        assertThrows(CartException.class, () -> cart.addCart(quantity, product));
+        assertThrows(IllegalArgumentException.class, () -> cart.addCart(quantity, product));
     }
 
     @Test
@@ -57,6 +57,6 @@ public class CartTest {
         long quantity = 2L;
 
         // When & Then
-        assertThrows(CartException.class, () -> cart.addCart(quantity, product));
+        assertThrows(IllegalArgumentException.class, () -> cart.addCart(quantity, product));
     }
 }
