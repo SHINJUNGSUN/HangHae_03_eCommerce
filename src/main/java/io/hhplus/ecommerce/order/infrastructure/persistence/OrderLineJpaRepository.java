@@ -19,4 +19,5 @@ public interface OrderLineJpaRepository extends JpaRepository<OrderLineEntity, L
     """)
     List<Long> findPopularProducts(LocalDateTime startDateTime, LocalDateTime endDateTime, Pageable pageable);
     List<OrderLineEntity> findByOrderId(Long orderId);
+    List<OrderLineEntity> findByProductId(Long productId);
 }

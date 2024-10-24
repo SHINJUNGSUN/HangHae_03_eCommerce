@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -20,7 +19,7 @@ public class ProductFacade {
     private final OrderService orderService;
 
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<ProductResponse> getProducts() {
         return productService.getProducts()
                 .stream()
@@ -28,13 +27,11 @@ public class ProductFacade {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<ProductResponse> getPopularProducts() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime startDateTime = now.minusDays(3).toLocalDate().atStartOfDay();
-        LocalDateTime endDateTime = now.minusDays(1).toLocalDate().atTime(LocalTime.MAX);
+        LocalDateTime now = LocalDateTime.now().plusHours(1);
 
-        return orderService.getPopularProducts(startDateTime, endDateTime)
+        return orderService.getPopularProducts(now.minusDays(3), now)
                 .stream()
                 .map(productId -> productService.getProduct(productId)
                         .orElse(Product.notAvailable(productId)))

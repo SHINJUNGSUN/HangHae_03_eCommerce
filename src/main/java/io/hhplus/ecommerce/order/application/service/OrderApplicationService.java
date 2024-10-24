@@ -6,6 +6,7 @@ import io.hhplus.ecommerce.order.domain.model.OrderStatus;
 import io.hhplus.ecommerce.order.domain.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,6 +19,7 @@ public class OrderApplicationService implements OrderService {
     private final OrderRepository orderRepository;
 
     @Override
+    @Transactional
     public Optional<Order> getOrder(long orderId, OrderStatus orderStatus) {
         return orderRepository.findByIdAndOrderStatus(orderId, orderStatus)
                 .map(order -> {
@@ -27,6 +29,7 @@ public class OrderApplicationService implements OrderService {
     }
 
     @Override
+    @Transactional
     public Order createOrder(long userSeq, List<OrderLine> orderLines) {
 
         Order order = orderRepository.save(Order.create(userSeq));
@@ -42,6 +45,7 @@ public class OrderApplicationService implements OrderService {
     }
 
     @Override
+    @Transactional
     public void updateOrderStatus(OrderStatus orderStatus, Order order) {
 
         order.setOrderStatus(orderStatus);
@@ -50,6 +54,7 @@ public class OrderApplicationService implements OrderService {
     }
 
     @Override
+    @Transactional
     public List<Long> getPopularProducts(LocalDateTime startDateTime, LocalDateTime endDateTime) {
         return orderRepository.findPopularProducts(startDateTime, endDateTime);
     }
