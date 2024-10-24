@@ -2,10 +2,12 @@ package io.hhplus.ecommerce.order.application.service;
 
 import io.hhplus.ecommerce.order.domain.model.Order;
 import io.hhplus.ecommerce.order.domain.model.OrderLine;
+import io.hhplus.ecommerce.order.domain.model.OrderStatus;
 import io.hhplus.ecommerce.order.domain.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,8 +18,8 @@ public class OrderApplicationService implements OrderService {
     private final OrderRepository orderRepository;
 
     @Override
-    public Optional<Order> getOrder(long orderId) {
-        return orderRepository.findById(orderId)
+    public Optional<Order> getOrder(long orderId, OrderStatus orderStatus) {
+        return orderRepository.findByIdAndOrderStatus(orderId, orderStatus)
                 .map(order -> {
                     orderRepository.findByOrderId(orderId).forEach(order::addOrderLine);
                     return order;
@@ -40,10 +42,15 @@ public class OrderApplicationService implements OrderService {
     }
 
     @Override
-    public void completeOrder(Order order) {
+    public void updateOrderStatus(OrderStatus orderStatus, Order order) {
 
-        order.completeOrder();
+        order.setOrderStatus(orderStatus);
 
         orderRepository.save(order);
+    }
+
+    @Override
+    public List<Long> getPopularProducts(LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        return orderRepository.findPopularProducts(startDateTime, endDateTime);
     }
 }

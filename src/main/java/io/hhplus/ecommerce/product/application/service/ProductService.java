@@ -8,5 +8,5 @@ import java.util.Optional;
 public interface ProductService {
     Optional<Product> getProduct(long productId);
     List<Product> getProducts();
-    List<Product> getPopularProducts();
+    Product reduceProduct(long productId, long quantity);
 }

@@ -17,8 +17,4 @@ public class User {
     private String userName;
 
     private UserPoint userPoint;
-
-    public static User create() {
-        return User.builder().build();
-    }
 }

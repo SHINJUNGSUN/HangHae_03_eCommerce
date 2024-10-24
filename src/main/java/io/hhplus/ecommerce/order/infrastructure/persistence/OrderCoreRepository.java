@@ -2,6 +2,7 @@ package io.hhplus.ecommerce.order.infrastructure.persistence;
 
 import io.hhplus.ecommerce.order.domain.model.Order;
 import io.hhplus.ecommerce.order.domain.model.OrderLine;
+import io.hhplus.ecommerce.order.domain.model.OrderStatus;
 import io.hhplus.ecommerce.order.infrastructure.persistence.entity.OrderEntity;
 import io.hhplus.ecommerce.order.domain.repository.OrderRepository;
 import io.hhplus.ecommerce.order.infrastructure.persistence.entity.OrderLineEntity;
@@ -32,8 +33,8 @@ public class OrderCoreRepository implements OrderRepository {
     }
 
     @Override
-    public Optional<Order> findById(long orderId) {
-        return orderJpaRepository.findById(orderId).map(OrderEntity::toOrder);
+    public Optional<Order> findByIdAndOrderStatus(long orderId, OrderStatus status) {
+        return orderJpaRepository.findByIdAndOrderStatus(orderId, status).map(OrderEntity::toOrder);
     }
 
     @Override

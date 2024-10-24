@@ -9,7 +9,6 @@ import io.hhplus.ecommerce.payment.application.service.PaymentService;
 import io.hhplus.ecommerce.payment.domain.exception.PaymentException;
 import io.hhplus.ecommerce.payment.domain.exception.PaymentExceptionType;
 import io.hhplus.ecommerce.user.application.service.UserPointService;
-import io.hhplus.ecommerce.user.domain.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,26 +24,12 @@ public class PaymentFacade {
     @Transactional
     public PaymentResponse payment(PaymentRequest request) {
 
-        Order order = orderService.getOrder(request.orderId())
+        Order order = orderService.getOrder(request.orderId(), OrderStatus.PENDING)
                 .orElseThrow(() -> new PaymentException(PaymentExceptionType.ORDER_NOT_FOUND));
-
-        if(order.getOrderStatus() == OrderStatus.CANCELED) {
-            throw new PaymentException(PaymentExceptionType.CANCELED_ORDER);
-        }
-
-        if(order.getOrderStatus() == OrderStatus.COMPLETED) {
-            throw new PaymentException(PaymentExceptionType.COMPLETED_ORDER);
-        }
-
-        User user = userPointService.getPoint(request.userId());
-
-        if(order.totalPrice() > user.getUserPoint().getPoint()) {
-            throw new PaymentException(PaymentExceptionType.ORDER_NOT_FOUND);
-        }
 
         userPointService.usePoint(request.userId(), order.totalPrice());
 
-        orderService.completeOrder(order);
+        orderService.updateOrderStatus(OrderStatus.COMPLETED, order);
 
         return PaymentResponse.from(paymentService.payment(request.userId(), order));
     }

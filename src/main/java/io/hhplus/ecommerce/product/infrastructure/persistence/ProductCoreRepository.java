@@ -17,14 +17,19 @@ public class ProductCoreRepository implements ProductRepository {
 
     @Override
     public Optional<Product> findByProductId(long productId) {
-        return productJpaRepository.findById(productId).map(ProductEntity::toDomain);
+        return productJpaRepository.findById(productId).map(ProductEntity::toProduct);
     }
 
     @Override
     public List<Product> findAll() {
         return productJpaRepository.findAll()
                 .stream()
-                .map(ProductEntity::toDomain)
+                .map(ProductEntity::toProduct)
                 .toList();
+    }
+
+    @Override
+    public Product save(Product product) {
+        return productJpaRepository.save(ProductEntity.from(product)).toProduct();
     }
 }

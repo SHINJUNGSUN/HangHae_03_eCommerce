@@ -28,6 +28,8 @@ public class PointHistoryEntity extends TimeStamped {
         return PointHistoryEntity.builder()
                 .id(pointHistory.getPointHistoryId())
                 .userSeq(pointHistory.getUserSeq())
+                .amount(pointHistory.getAmount())
+                .transactionType(pointHistory.getTransactionType())
                 .build();
     }
 }

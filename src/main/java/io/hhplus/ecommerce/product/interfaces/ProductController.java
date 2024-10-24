@@ -1,9 +1,8 @@
 package io.hhplus.ecommerce.product.interfaces;
 
-import io.hhplus.ecommerce.product.application.service.ProductApplicationService;
+import io.hhplus.ecommerce.product.application.ProductFacade;
 import io.hhplus.ecommerce.product.application.dto.ProductResponse;
 import io.hhplus.ecommerce.common.model.CommonApiResponse;
-import io.hhplus.ecommerce.product.application.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,19 +22,19 @@ import java.util.List;
 @Tag(name = "상품 API")
 public class ProductController {
 
-    private final ProductService productService;
+    private final ProductFacade productFacade;
 
     @Operation(summary = "상품 목록 조회 API")
     @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProductResponse.class))))
     @GetMapping("")
     public CommonApiResponse<List<ProductResponse>> products() {
-        return CommonApiResponse.success(productService.getProducts());
+        return CommonApiResponse.success(productFacade.getProducts());
     }
 
     @Operation(summary = "상위 상품 조회 API")
     @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProductResponse.class))))
     @GetMapping("/popular")
     public CommonApiResponse<List<ProductResponse>> topProducts() {
-        return CommonApiResponse.success(productService.getPopularProducts());
+        return CommonApiResponse.success(productFacade.getPopularProducts());
     }
 }

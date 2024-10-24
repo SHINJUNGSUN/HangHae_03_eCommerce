@@ -23,7 +23,7 @@ public class ProductEntity {
 
     private Long stock;
 
-    public static ProductEntity of(Product product) {
+    public static ProductEntity from(Product product) {
         return ProductEntity.builder()
                 .id(product.getProductId())
                 .productName(product.getProductName())
@@ -32,7 +32,7 @@ public class ProductEntity {
                 .build();
     }
 
-    public Product toDomain() {
+    public Product toProduct() {
         return Product.builder()
                 .productId(this.id)
                 .productName(this.productName)

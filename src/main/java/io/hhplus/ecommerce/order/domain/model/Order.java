@@ -37,7 +37,7 @@ public class Order {
                 .sum();
     }
 
-    public void completeOrder() {
-        this.orderStatus = OrderStatus.COMPLETED;
+    public void setOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
     }
 }
