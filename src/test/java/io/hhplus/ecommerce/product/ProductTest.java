@@ -1,6 +1,5 @@
 package io.hhplus.ecommerce.product;
 
-import io.hhplus.ecommerce.product.domain.exception.ProductException;
 import io.hhplus.ecommerce.product.domain.model.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -43,7 +42,7 @@ public class ProductTest {
         long quantity = -1L;
 
         // When & Then
-        assertThrows(ProductException.class, () -> product.reduceStock(quantity));
+        assertThrows(IllegalArgumentException.class, () -> product.reduceStock(quantity));
     }
 
     @Test
@@ -53,6 +52,6 @@ public class ProductTest {
         long quantity = 2L;
 
         // When & Then
-        assertThrows(ProductException.class, () -> product.reduceStock(quantity));
+        assertThrows(IllegalArgumentException.class, () -> product.reduceStock(quantity));
     }
 }

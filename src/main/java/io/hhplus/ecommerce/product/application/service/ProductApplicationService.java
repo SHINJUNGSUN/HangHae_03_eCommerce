@@ -1,7 +1,6 @@
 package io.hhplus.ecommerce.product.application.service;
 
-import io.hhplus.ecommerce.product.domain.exception.ProductException;
-import io.hhplus.ecommerce.product.domain.exception.ProductExceptionType;
+import io.hhplus.ecommerce.common.exception.ExceptionMessage;
 import io.hhplus.ecommerce.product.domain.model.Product;
 import io.hhplus.ecommerce.product.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +29,7 @@ public class ProductApplicationService implements ProductService {
     public Product reduceProduct(long productId, long quantity) {
 
         Product product = productRepository.findByProductId(productId)
-                .orElseThrow(() -> new ProductException(ProductExceptionType.PRODUCT_NOT_FOUND));
+                .orElseThrow(() -> new IllegalStateException(ExceptionMessage.PRODUCT_NOT_FOUND.getMessage()));
 
         product.reduceStock(quantity);
 

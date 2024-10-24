@@ -1,13 +1,11 @@
 package io.hhplus.ecommerce.order.application;
 
+import io.hhplus.ecommerce.common.exception.ExceptionMessage;
 import io.hhplus.ecommerce.order.application.dto.OrderRequest;
 import io.hhplus.ecommerce.order.application.dto.OrderResponse;
 import io.hhplus.ecommerce.order.application.service.OrderService;
-import io.hhplus.ecommerce.order.domain.exception.OrderException;
-import io.hhplus.ecommerce.order.domain.exception.OrderExceptionType;
 import io.hhplus.ecommerce.order.domain.model.OrderLine;
 import io.hhplus.ecommerce.product.application.service.ProductService;
-import io.hhplus.ecommerce.product.domain.exception.ProductException;
 import io.hhplus.ecommerce.product.domain.model.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,8 +29,10 @@ public class OrderFacade {
                     try {
                         Product product = productService.reduceProduct(orderProduct.productId(), orderProduct.quantity());
                         return OrderLine.create(orderProduct.quantity(), product);
-                    } catch (ProductException e) {
-                        throw new OrderException(OrderExceptionType.INSUFFICIENT_STOCK);
+                    } catch (IllegalStateException illegalStateException) {
+                        throw new IllegalStateException(ExceptionMessage.PRODUCT_NOT_FOUND.getMessage());
+                    } catch (IllegalArgumentException illegalArgumentException) {
+                        throw new IllegalArgumentException(ExceptionMessage.PRODUCT_REDUCE_FAILED.getMessage());
                     }
                 })
                 .toList();

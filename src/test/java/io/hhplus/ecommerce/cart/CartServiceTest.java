@@ -1,7 +1,6 @@
 package io.hhplus.ecommerce.cart;
 
 import io.hhplus.ecommerce.cart.application.service.CartApplicationService;
-import io.hhplus.ecommerce.cart.domain.exception.CartException;
 import io.hhplus.ecommerce.cart.domain.model.Cart;
 import io.hhplus.ecommerce.cart.domain.repository.CartRepository;
 import io.hhplus.ecommerce.product.domain.model.Product;

@@ -1,7 +1,6 @@
 package io.hhplus.ecommerce.cart.domain.model;
 
-import io.hhplus.ecommerce.cart.domain.exception.CartException;
-import io.hhplus.ecommerce.cart.domain.exception.CartExceptionType;
+import io.hhplus.ecommerce.common.exception.ExceptionMessage;
 import io.hhplus.ecommerce.product.domain.model.Product;
 import lombok.*;
 
@@ -30,11 +29,11 @@ public class Cart {
     public void addCart(long quantity, Product product) {
 
         if (quantity <= 0) {
-            throw new CartException(CartExceptionType.INVALID_AMOUNT);
+            throw new IllegalArgumentException(ExceptionMessage.INVALID_QUANTITY.getMessage());
         }
 
         if (product.getStock() < this.quantity + quantity) {
-            throw new CartException(CartExceptionType.INSUFFICIENT_STOCK);
+            throw new IllegalArgumentException(ExceptionMessage.INSUFFICIENT_STOCK.getMessage());
         }
 
         this.quantity += quantity;

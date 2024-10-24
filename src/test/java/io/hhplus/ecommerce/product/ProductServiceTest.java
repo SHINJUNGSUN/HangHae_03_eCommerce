@@ -1,7 +1,6 @@
 package io.hhplus.ecommerce.product;
 
 import io.hhplus.ecommerce.product.application.service.ProductApplicationService;
-import io.hhplus.ecommerce.product.domain.exception.ProductException;
 import io.hhplus.ecommerce.product.domain.model.Product;
 import io.hhplus.ecommerce.product.domain.repository.ProductRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -107,6 +106,6 @@ public class ProductServiceTest {
         when(productRepository.findByProductId(productId)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(ProductException.class, () -> productApplicationService.reduceProduct(productId, quantity));
+        assertThrows(IllegalStateException.class, () -> productApplicationService.reduceProduct(productId, quantity));
     }
 }

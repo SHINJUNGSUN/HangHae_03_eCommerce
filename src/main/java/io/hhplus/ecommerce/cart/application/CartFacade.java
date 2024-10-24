@@ -4,9 +4,8 @@ import io.hhplus.ecommerce.cart.application.dto.CartAddRequest;
 import io.hhplus.ecommerce.cart.application.dto.CartRemoveRequest;
 import io.hhplus.ecommerce.cart.application.dto.CartResponse;
 import io.hhplus.ecommerce.cart.application.service.CartService;
-import io.hhplus.ecommerce.cart.domain.exception.CartException;
-import io.hhplus.ecommerce.cart.domain.exception.CartExceptionType;
 import io.hhplus.ecommerce.cart.domain.model.CartProduct;
+import io.hhplus.ecommerce.common.exception.ExceptionMessage;
 import io.hhplus.ecommerce.product.application.service.ProductService;
 import io.hhplus.ecommerce.product.domain.model.Product;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +35,7 @@ public class CartFacade {
     public List<CartResponse> addCart(CartAddRequest request) {
 
         Product product = productService.getProduct(request.productId())
-                .orElseThrow(() -> new CartException(CartExceptionType.PRODUCT_NOT_FOUND));
+                .orElseThrow(() -> new IllegalStateException(ExceptionMessage.PRODUCT_NOT_FOUND.getMessage()));
 
         return cartService.addCart(request.userSeq(), request.quantity(), product)
                 .stream()

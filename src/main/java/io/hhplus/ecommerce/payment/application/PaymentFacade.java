@@ -1,13 +1,12 @@
 package io.hhplus.ecommerce.payment.application;
 
+import io.hhplus.ecommerce.common.exception.ExceptionMessage;
 import io.hhplus.ecommerce.order.application.service.OrderService;
 import io.hhplus.ecommerce.order.domain.model.Order;
 import io.hhplus.ecommerce.order.domain.model.OrderStatus;
 import io.hhplus.ecommerce.payment.application.dto.PaymentRequest;
 import io.hhplus.ecommerce.payment.application.dto.PaymentResponse;
 import io.hhplus.ecommerce.payment.application.service.PaymentService;
-import io.hhplus.ecommerce.payment.domain.exception.PaymentException;
-import io.hhplus.ecommerce.payment.domain.exception.PaymentExceptionType;
 import io.hhplus.ecommerce.user.application.service.UserPointService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,7 +24,7 @@ public class PaymentFacade {
     public PaymentResponse payment(PaymentRequest request) {
 
         Order order = orderService.getOrder(request.orderId(), OrderStatus.PENDING)
-                .orElseThrow(() -> new PaymentException(PaymentExceptionType.ORDER_NOT_FOUND));
+                .orElseThrow(() -> new IllegalStateException(ExceptionMessage.ORDER_NOT_FOUND.getMessage()));
 
         userPointService.usePoint(request.userId(), order.totalPrice());
 

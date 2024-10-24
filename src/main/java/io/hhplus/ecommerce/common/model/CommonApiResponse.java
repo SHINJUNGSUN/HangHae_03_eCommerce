@@ -19,7 +19,7 @@ public class CommonApiResponse<T> extends ResponseEntity<T> {
         return new CommonApiResponse<>(HttpStatus.OK, data);
     }
 
-    public static CommonApiResponse<ErrorResponse> error(HttpStatusCode status, int errorCode, String errorMessage) {
-        return new CommonApiResponse<>(status, new ErrorResponse(errorCode, errorMessage));
+    public static CommonApiResponse<ErrorResponse> error(HttpStatusCode status, String message) {
+        return new CommonApiResponse<>(status, new ErrorResponse(message));
     }
 }

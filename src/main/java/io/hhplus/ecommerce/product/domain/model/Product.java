@@ -1,9 +1,6 @@
 package io.hhplus.ecommerce.product.domain.model;
 
-import io.hhplus.ecommerce.product.domain.exception.ProductException;
-import io.hhplus.ecommerce.product.domain.exception.ProductExceptionType;
-import io.hhplus.ecommerce.user.domain.exception.UserException;
-import io.hhplus.ecommerce.user.domain.exception.UserExceptionType;
+import io.hhplus.ecommerce.common.exception.ExceptionMessage;
 import lombok.*;
 
 @Getter
@@ -32,11 +29,11 @@ public class Product {
     public void reduceStock(long quantity) {
 
         if(quantity <= 0) {
-            throw new ProductException(ProductExceptionType.INVALID_QUANTITY);
+            throw new IllegalArgumentException(ExceptionMessage.INVALID_QUANTITY.getMessage());
         }
 
         if (this.stock < quantity) {
-            throw new ProductException(ProductExceptionType.INSUFFICIENT_STOCK);
+            throw new IllegalArgumentException(ExceptionMessage.INSUFFICIENT_STOCK.getMessage());
         }
 
         this.stock -= quantity;

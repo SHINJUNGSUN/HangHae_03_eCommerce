@@ -1,6 +1,5 @@
 package io.hhplus.ecommerce.user;
 
-import io.hhplus.ecommerce.user.domain.exception.UserException;
 import io.hhplus.ecommerce.user.domain.model.UserPoint;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -39,7 +38,7 @@ public class UserPointTest {
         long chargeAmount = -1L;
 
         // When & Then
-        assertThrows(UserException.class, () -> userPoint.chargePoint(chargeAmount));
+        assertThrows(IllegalArgumentException.class, () -> userPoint.chargePoint(chargeAmount));
     }
 
     @Test
@@ -62,7 +61,7 @@ public class UserPointTest {
         long useAmount = -1L;
 
         // When & Then
-        assertThrows(UserException.class, () -> userPoint.usePoint(useAmount));
+        assertThrows(IllegalArgumentException.class, () -> userPoint.usePoint(useAmount));
     }
 
     @Test
@@ -72,6 +71,6 @@ public class UserPointTest {
         long useAmount = 2L;
 
         // When & Then
-        assertThrows(UserException.class, () -> userPoint.usePoint(useAmount));
+        assertThrows(IllegalArgumentException.class, () -> userPoint.usePoint(useAmount));
     }
 }

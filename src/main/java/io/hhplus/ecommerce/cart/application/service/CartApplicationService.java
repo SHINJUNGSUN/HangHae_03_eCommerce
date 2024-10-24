@@ -1,9 +1,8 @@
 package io.hhplus.ecommerce.cart.application.service;
 
-import io.hhplus.ecommerce.cart.domain.exception.CartException;
-import io.hhplus.ecommerce.cart.domain.exception.CartExceptionType;
 import io.hhplus.ecommerce.cart.domain.model.Cart;
 import io.hhplus.ecommerce.cart.domain.repository.CartRepository;
+import io.hhplus.ecommerce.common.exception.ExceptionMessage;
 import io.hhplus.ecommerce.product.domain.model.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -38,7 +37,7 @@ public class CartApplicationService implements CartService {
     public List<Cart> removeCart(long userSeq, long productId) {
 
         Cart cart = cartRepository.findByUserSeqAndProductId(userSeq, productId)
-                .orElseThrow(() -> new CartException(CartExceptionType.CART_NOT_FOUND));
+                .orElseThrow(() -> new IllegalStateException(ExceptionMessage.CART_NOT_FOUND.getMessage()));
 
         cartRepository.delete(cart);
 

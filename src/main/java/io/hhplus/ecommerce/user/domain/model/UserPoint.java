@@ -1,7 +1,6 @@
 package io.hhplus.ecommerce.user.domain.model;
 
-import io.hhplus.ecommerce.user.domain.exception.UserException;
-import io.hhplus.ecommerce.user.domain.exception.UserExceptionType;
+import io.hhplus.ecommerce.common.exception.ExceptionMessage;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,7 +17,7 @@ public class UserPoint {
     public void chargePoint(long amount) {
 
         if(amount <= 0) {
-            throw new UserException(UserExceptionType.INVALID_AMOUNT);
+            throw new IllegalArgumentException(ExceptionMessage.INVALID_AMOUNT.getMessage());
         }
 
         this.point += amount;
@@ -27,11 +26,11 @@ public class UserPoint {
     public void usePoint(long amount) {
 
         if(amount <= 0) {
-            throw new UserException(UserExceptionType.INVALID_AMOUNT);
+            throw new IllegalArgumentException(ExceptionMessage.INVALID_AMOUNT.getMessage());
         }
 
         if(this.point < amount) {
-            throw new UserException(UserExceptionType.INSUFFICIENT_BALANCE);
+            throw new IllegalArgumentException(ExceptionMessage.INSUFFICIENT_POINT.getMessage());
         }
 
         this.point -= amount;

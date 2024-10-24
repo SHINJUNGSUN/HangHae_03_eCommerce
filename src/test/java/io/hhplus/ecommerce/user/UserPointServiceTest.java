@@ -1,7 +1,6 @@
 package io.hhplus.ecommerce.user;
 
 import io.hhplus.ecommerce.user.application.service.UserPointApplicationService;
-import io.hhplus.ecommerce.user.domain.exception.UserException;
 import io.hhplus.ecommerce.user.domain.model.User;
 import io.hhplus.ecommerce.user.domain.model.UserPoint;
 import io.hhplus.ecommerce.user.domain.repository.UserRepository;
@@ -73,7 +72,7 @@ public class UserPointServiceTest {
         when(userRepository.findById(userSeq)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(UserException.class, () -> userPointApplicationService.getPoint(userSeq));
+        assertThrows(NullPointerException.class, () -> userPointApplicationService.getPoint(userSeq));
     }
 
     @Test

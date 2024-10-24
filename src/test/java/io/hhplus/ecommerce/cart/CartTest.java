@@ -2,7 +2,6 @@ package io.hhplus.ecommerce.cart;
 
 import io.hhplus.ecommerce.cart.domain.model.Cart;
 import io.hhplus.ecommerce.product.domain.model.Product;
-import io.hhplus.ecommerce.cart.domain.exception.CartException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
