@@ -6,6 +6,7 @@ import io.hhplus.ecommerce.user.domain.model.User;
 import io.hhplus.ecommerce.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -14,12 +15,14 @@ public class UserPointApplicationService implements UserPointService {
     private final UserRepository userRepository;
 
     @Override
+    @Transactional
     public User getPoint(long userSeq) {
         return userRepository.findById(userSeq)
                         .orElseThrow(() -> new NullPointerException(ExceptionMessage.USER_NOT_FOUND.getMessage()));
     }
 
     @Override
+    @Transactional
     public User chargePoint(long userSeq, long amount) {
 
         User user = userRepository.findById(userSeq)
@@ -33,6 +36,7 @@ public class UserPointApplicationService implements UserPointService {
     }
 
     @Override
+    @Transactional
     public User usePoint(long userSeq, long amount) {
 
         User user = userRepository.findById(userSeq)

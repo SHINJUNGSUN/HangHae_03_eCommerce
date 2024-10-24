@@ -3,6 +3,8 @@ package io.hhplus.ecommerce.order.domain.model;
 import io.hhplus.ecommerce.product.domain.model.Product;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 @AllArgsConstructor

@@ -46,13 +46,16 @@ public class OrderCoreRepository implements OrderRepository {
     }
 
     @Override
-    public void deleteAll() {
-        orderJpaRepository.deleteAll();
-    }
-
-    @Override
     public List<Long> findPopularProducts(LocalDateTime startDateTime, LocalDateTime endDateTime) {
         Pageable pageable = PageRequest.of(0, 5);
         return orderLineJpaRepository.findPopularProducts(startDateTime, endDateTime, pageable);
+    }
+
+    @Override
+    public List<OrderLine> findByProductId(Long productId) {
+        return orderLineJpaRepository.findByProductId(productId)
+                .stream()
+                .map(OrderLineEntity::toOrderLine)
+                .toList();
     }
 }

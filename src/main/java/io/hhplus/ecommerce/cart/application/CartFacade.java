@@ -21,7 +21,7 @@ public class CartFacade {
     private final CartService cartService;
     private final ProductService productService;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<CartResponse> getCarts(long userSeq) {
         return cartService.getCarts(userSeq)
                 .stream()

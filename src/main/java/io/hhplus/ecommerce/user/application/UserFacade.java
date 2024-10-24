@@ -26,7 +26,6 @@ public class UserFacade {
         return UserPointResponse.from(userPointService.getPoint(userSeq));
     }
 
-    @Transactional
     public UserPointResponse chargePoint(long userSeq, UserPointRequest request) {
         return UserPointResponse.from(userPointService.chargePoint(userSeq, request.amount()));
     }

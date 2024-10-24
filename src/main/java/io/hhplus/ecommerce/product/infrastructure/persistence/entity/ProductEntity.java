@@ -1,5 +1,6 @@
 package io.hhplus.ecommerce.product.infrastructure.persistence.entity;
 
+import io.hhplus.ecommerce.common.model.TimeStamped;
 import io.hhplus.ecommerce.product.domain.model.Product;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductEntity {
+public class ProductEntity extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
