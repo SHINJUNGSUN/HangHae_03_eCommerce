@@ -1,10 +1,9 @@
 package io.hhplus.ecommerce.cart;
 
-import io.hhplus.ecommerce.api.cart.domain.model.Cart;
-import io.hhplus.ecommerce.api.cart.domain.repository.CartRepository;
-import io.hhplus.ecommerce.api.cart.domain.service.CartDomainService;
-import io.hhplus.ecommerce.api.product.domain.model.Product;
-import io.hhplus.ecommerce.common.exception.CartException;
+import io.hhplus.ecommerce.cart.application.service.CartApplicationService;
+import io.hhplus.ecommerce.cart.domain.model.Cart;
+import io.hhplus.ecommerce.cart.domain.repository.CartRepository;
+import io.hhplus.ecommerce.product.domain.model.Product;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,18 +14,21 @@ import org.mockito.Mock;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.openMocks;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 
 public class CartServiceTest {
 
     @InjectMocks
-    CartDomainService cartDomainService;
+    CartApplicationService cartApplicationService;
 
     @Mock
     CartRepository cartRepository;
+
+    Cart cart;
 
     Product product;
 
@@ -36,10 +38,10 @@ public class CartServiceTest {
     void setUp() {
         closeable = openMocks(this);
         product = Product.builder()
-                .id(1L)
+                .productId(1L)
                 .productName("Laptop")
                 .unitPrice(1500000L)
-                .stock(10L)
+                .stock(2L)
                 .build();
     }
 
@@ -49,87 +51,82 @@ public class CartServiceTest {
     }
 
     @Test
-    @DisplayName("장바구니에 해당 상품이 이미 존재하는 경우, 장바구니 상품 추가 성공")
+    @DisplayName("장바구니 상품 추가 성공: 장바구니에 해당 상품이 이미 존재하는 경우")
     void addCart_success_cart_exists() {
         // Given
-        long userId = 1L;
-        long increaseQuantity = 3L;
-        long existingQuantity = 4L;
-        Cart cart = Cart.builder()
-                .userId(userId)
-                .quantity(existingQuantity)
-                .product(product)
+        long userSeq = 1L;
+        long quantity = 1L;
+        long prevQuantity = 1L;
+        cart = Cart.builder()
+                .userSeq(userSeq)
+                .quantity(prevQuantity)
+                .productId(product.getProductId())
                 .build();
 
-        when(cartRepository.findByUserIdAndProductId(userId, product.getId()))
-                .thenReturn(Optional.of(cart));
-        when(cartRepository.findByUserId(userId)).thenReturn(List.of(cart));
+        when(cartRepository.findByUserSeqAndProductId(userSeq, product.getProductId())).thenReturn(Optional.of(cart));
+        when(cartRepository.findByUserSeq(userSeq)).thenReturn(List.of(cart));
 
         // when
-        cartDomainService.addCart(userId, increaseQuantity, product);
+        cartApplicationService.addCart(userSeq, quantity, product);
 
         // That
-        assertThat(cart.getQuantity()).isEqualTo(increaseQuantity + existingQuantity);
+        assertEquals(2L, cart.getQuantity());
     }
 
     @Test
-    @DisplayName("장바구니에 해당 상품이 존재하지 않는 경우, 장바구니 상품 추가 성공")
+    @DisplayName("장바구니 상품 추가 성공: 장바구니에 해당 상품이 존재하지 않는 경우")
     void addCart_success_cart_does_not_exist() {
         // Given
-        long userId = 1L;
-        long increaseQuantity = 3L;
-        Cart cart = Cart.builder()
-                .userId(userId)
-                .quantity(increaseQuantity)
-                .product(product)
+        long userSeq = 1L;
+        long quantity = 1L;
+        cart = Cart.builder()
+                .userSeq(userSeq)
+                .quantity(quantity)
+                .productId(product.getProductId())
                 .build();
 
-        when(cartRepository.findByUserIdAndProductId(userId, product.getId()))
-                .thenReturn(Optional.empty());
-        when(cartRepository.findByUserId(userId)).thenReturn(List.of(cart));
+        when(cartRepository.findByUserSeqAndProductId(userSeq, product.getProductId())).thenReturn(Optional.empty());
+        when(cartRepository.findByUserSeq(userSeq)).thenReturn(List.of(cart));
 
         // when
-        List<Cart> response = cartDomainService.addCart(userId, increaseQuantity, product);
+        cartApplicationService.addCart(userSeq, quantity, product);
 
         // That
-        assertThat(response).contains(cart);
-        assertThat(cart.getQuantity()).isEqualTo(increaseQuantity);
+        assertEquals(1L, cart.getQuantity());
     }
 
     @Test
-    @DisplayName("장바구니에 해당 상품이 이미 존재하는 경우, 장바구니 상품 제거 성공")
+    @DisplayName("장바구니 상품 제거 성공: 장바구니에 해당 상품이 이미 존재하는 경우")
     void removeCart_success_cart_exists() {
         // Given
-        long userId = 1L;
+        long userSeq = 1L;
         long productId = 1L;
-        Cart cart = Cart.builder()
-                .userId(userId)
+        cart = Cart.builder()
+                .userSeq(userSeq)
                 .quantity(1L)
-                .product(product)
+                .productId(product.getProductId())
                 .build();
 
-        when(cartRepository.findByUserIdAndProductId(userId, product.getId()))
-                .thenReturn(Optional.of(cart));
-        when(cartRepository.findByUserId(userId)).thenReturn(List.of());
+        when(cartRepository.findByUserSeqAndProductId(userSeq, product.getProductId())).thenReturn(Optional.empty());
+        when(cartRepository.findByUserSeq(userSeq)).thenReturn(List.of());
 
         // when
-        List<Cart> response = cartDomainService.removeCart(userId, productId);
+        List<Cart> response = cartApplicationService.removeCart(userSeq, productId);
 
         // That
         assertThat(response).isEmpty();
     }
 
     @Test
-    @DisplayName("장바구니에 해당 상품이 존재하지 않는 경우, 장바구니 상품 제거 실패")
+    @DisplayName("장바구니 상품 제거 실패: 장바구니에 해당 상품이 존재하지 않는 경우")
     void removeCart_fail_cart_does_not_exist() {
         // Given
-        long userId = 1L;
+        long userSeq = 1L;
         long productId = 1L;
 
-        when(cartRepository.findByUserIdAndProductId(userId, productId))
-                .thenReturn(Optional.empty());
+        when(cartRepository.findByUserSeqAndProductId(userSeq, product.getProductId())).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(CartException.class, () -> cartDomainService.removeCart(userId, productId));
+        assertThrows(CartException.class, () -> cartApplicationService.removeCart(userSeq, productId));
     }
 }

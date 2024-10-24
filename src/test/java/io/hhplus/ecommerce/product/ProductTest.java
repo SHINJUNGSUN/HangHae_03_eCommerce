@@ -1,7 +1,6 @@
 package io.hhplus.ecommerce.product;
 
-import io.hhplus.ecommerce.api.product.domain.model.Product;
-import io.hhplus.ecommerce.common.exception.ProductException;
+import io.hhplus.ecommerce.product.domain.model.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,43 +15,43 @@ public class ProductTest {
     @BeforeEach
     public void setUp() {
         product = Product.builder()
-                .id(1L)
+                .productId(1L)
                 .productName("Laptop")
                 .unitPrice(1500000L)
-                .stock(10L)
+                .stock(1L)
                 .build();
     }
 
     @Test
-    @DisplayName("재고 감소 성공")
+    @DisplayName("상품 재고 감소 성공")
     void reduceProduct_success() {
         // Given
-        long quantity = 5L;
+        long quantity = 1L;
 
         // When
-        product.reduceProduct(quantity);
+        product.reduceStock(quantity);
 
         // Then
-        assertEquals(5L, product.getStock());
+        assertEquals(0L, product.getStock());
     }
 
     @Test
-    @DisplayName("감소 수량이 0 보다 작거나 같은 경우, 재고 감소 실패")
+    @DisplayName("상품 재고 감소 실패: 상품 재고 감소 수량이 0 보다 작거나 같은 경우")
     void usePoint_fail_amount_is_zero_or_negative() {
         // Given
-        long quantity = -5L;
+        long quantity = -1L;
 
         // When & Then
-        assertThrows(ProductException.class, () -> product.reduceProduct(quantity));
+        assertThrows(IllegalArgumentException.class, () -> product.reduceStock(quantity));
     }
 
     @Test
-    @DisplayName("감소 수량이 재고보다 큰 경우, 재고 감소 실패")
+    @DisplayName("상품 재고 감소 실패: 상품 재고 감소 수량이 상품 재고보다 큰 경우")
     void usePoint_fail_amount_exceeds_balance() {
         // Given
-        long quantity = 15L;
+        long quantity = 2L;
 
         // When & Then
-        assertThrows(ProductException.class, () -> product.reduceProduct(quantity));
+        assertThrows(IllegalArgumentException.class, () -> product.reduceStock(quantity));
     }
 }

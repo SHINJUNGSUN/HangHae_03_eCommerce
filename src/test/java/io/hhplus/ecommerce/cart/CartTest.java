@@ -1,8 +1,7 @@
 package io.hhplus.ecommerce.cart;
 
-import io.hhplus.ecommerce.api.cart.domain.model.Cart;
-import io.hhplus.ecommerce.api.product.domain.model.Product;
-import io.hhplus.ecommerce.common.exception.CartException;
+import io.hhplus.ecommerce.cart.domain.model.Cart;
+import io.hhplus.ecommerce.product.domain.model.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,39 +13,50 @@ public class CartTest {
 
     Cart cart;
 
+    Product product;
+
     @BeforeEach
     public void setUp() {
-        Product product = Product.builder()
-                .id(1L)
+        product = Product.builder()
+                .productId(1L)
                 .productName("Laptop")
                 .unitPrice(1500000L)
-                .stock(10L)
+                .stock(1L)
                 .build();
 
-        cart = Cart.create(1L, product);
+        cart = Cart.create(1L, 1L);
     }
 
     @Test
     @DisplayName("장바구니 상품 수량 증가 성공")
-    void createCart_success() {
+    void addCart_success() {
         // Given
-        long increaseQuantity = 10L;
+        long quantity = 1L;
 
         // When
-        cart.increaseQuantity(increaseQuantity);
+        cart.addCart(quantity, product);
 
         // Then
-        assertEquals(10L, cart.getQuantity());
+        assertEquals(1L, cart.getQuantity());
     }
 
-
     @Test
-    @DisplayName("장바구니 상품 증가 수량이 0 보다 작거나 같은 경우, 장바구니 상품 수량 증가 실패")
-    void createCart_fail_amount_is_zero_or_negative() {
+    @DisplayName("장바구니 상품 수량 증가 실패: 장바구니 상품 증가 수량이 0 보다 작거나 같은 경우")
+    void addCart_fail_quantity_is_zero_or_negative() {
         // Given
-        long increaseQuantity = 0L;
+        long quantity = -1L;
 
         // When & Then
-        assertThrows(CartException.class, () -> cart.increaseQuantity(increaseQuantity));
+        assertThrows(CartException.class, () -> cart.addCart(quantity, product));
+    }
+
+    @Test
+    @DisplayName("장바구니 상품 수량 증가 실패: 장바구니 상품 증가 수량이 상품 재고보다 큰 경우")
+    void createCart_fail_quantity_exceeds_stock() {
+        // Given
+        long quantity = 2L;
+
+        // When & Then
+        assertThrows(CartException.class, () -> cart.addCart(quantity, product));
     }
 }
