@@ -8,6 +8,7 @@ import java.util.Optional;
 
 public interface UserRepository {
     Optional<User> findById(long userSeq);
+    Optional<User> findByIdForUpdate(long userSeq);
     Optional<User> findByUserId(String userId);
     User save(User user);
     void save(PointHistory pointHistory);

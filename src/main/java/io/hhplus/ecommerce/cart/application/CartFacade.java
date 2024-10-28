@@ -21,7 +21,6 @@ public class CartFacade {
     private final CartService cartService;
     private final ProductService productService;
 
-    @Transactional
     public List<CartResponse> getCarts(long userSeq) {
         return cartService.getCarts(userSeq)
                 .stream()
@@ -31,9 +30,8 @@ public class CartFacade {
                 ).toList();
     }
 
-    @Transactional
     public List<CartResponse> addCart(long userSeq, CartAddRequest request) {
-
+        
         Product product = productService.getProduct(request.productId())
                 .orElseThrow(() -> new IllegalStateException(ExceptionMessage.PRODUCT_NOT_FOUND.getMessage()));
 
@@ -45,7 +43,6 @@ public class CartFacade {
                 ).toList();
     }
 
-    @Transactional
     public List<CartResponse> removeCart(long userSeq, CartRemoveRequest request) {
         return cartService.removeCart(userSeq, request.productId())
                 .stream()

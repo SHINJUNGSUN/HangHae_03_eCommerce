@@ -11,12 +11,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class ApiControllerAdvice {
 
-    @ExceptionHandler(value = NullPointerException.class)
-    public CommonApiResponse<ErrorResponse> handleNullPointerException(NullPointerException e) {
-        log.error("[{}] NullPointerException: {}", HttpStatus.NOT_FOUND, e.getMessage(), e);
-        return CommonApiResponse.error(HttpStatus.NOT_FOUND, e.getMessage());
-    }
-
     @ExceptionHandler(value = IllegalStateException.class)
     public CommonApiResponse<ErrorResponse> handleIllegalStateException(IllegalStateException e) {
         log.error("[{}] IllegalStateException: {}", HttpStatus.BAD_REQUEST, e.getMessage(), e);

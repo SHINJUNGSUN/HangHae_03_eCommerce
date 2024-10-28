@@ -15,17 +15,16 @@ public class UserPointApplicationService implements UserPointService {
     private final UserRepository userRepository;
 
     @Override
-    @Transactional
     public User getPoint(long userSeq) {
         return userRepository.findById(userSeq)
-                        .orElseThrow(() -> new NullPointerException(ExceptionMessage.USER_NOT_FOUND.getMessage()));
+                        .orElseThrow(() -> new IllegalStateException(ExceptionMessage.USER_NOT_FOUND.getMessage()));
     }
 
     @Override
     @Transactional
     public User chargePoint(long userSeq, long amount) {
 
-        User user = userRepository.findById(userSeq)
+        User user = userRepository.findByIdForUpdate(userSeq)
                 .orElseThrow(() -> new IllegalStateException(ExceptionMessage.USER_NOT_FOUND.getMessage()));
 
         user.getUserPoint().chargePoint(amount);
@@ -39,7 +38,7 @@ public class UserPointApplicationService implements UserPointService {
     @Transactional
     public User usePoint(long userSeq, long amount) {
 
-        User user = userRepository.findById(userSeq)
+        User user = userRepository.findByIdForUpdate(userSeq)
                 .orElseThrow(() -> new IllegalStateException(ExceptionMessage.USER_NOT_FOUND.getMessage()));
 
         user.getUserPoint().usePoint(amount);

@@ -19,7 +19,6 @@ public class OrderApplicationService implements OrderService {
     private final OrderRepository orderRepository;
 
     @Override
-    @Transactional
     public Optional<Order> getOrder(long orderId, OrderStatus orderStatus) {
         return orderRepository.findByIdAndOrderStatus(orderId, orderStatus)
                 .map(order -> {
@@ -29,7 +28,6 @@ public class OrderApplicationService implements OrderService {
     }
 
     @Override
-    @Transactional
     public Order createOrder(long userSeq, List<OrderLine> orderLines) {
 
         Order order = orderRepository.save(Order.create(userSeq));
@@ -45,7 +43,6 @@ public class OrderApplicationService implements OrderService {
     }
 
     @Override
-    @Transactional
     public void updateOrderStatus(OrderStatus orderStatus, Order order) {
 
         order.setOrderStatus(orderStatus);

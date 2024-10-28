@@ -23,6 +23,11 @@ public class UserCoreRepository implements UserRepository {
     }
 
     @Override
+    public Optional<User> findByIdForUpdate(long userSeq) {
+        return userJpaRepository.findByIdForUpdate(userSeq).map(UserEntity::toUser);
+    }
+
+    @Override
     public Optional<User> findByUserId(String userId) {
         return userJpaRepository.findByUserId(userId).map(UserEntity::toUser);
     }

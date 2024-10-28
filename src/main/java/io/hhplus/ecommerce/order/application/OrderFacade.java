@@ -26,14 +26,8 @@ public class OrderFacade {
         List<OrderLine> orderLines = request.OrderProductList()
                 .stream()
                 .map(orderProduct -> {
-                    try {
-                        Product product = productService.reduceProduct(orderProduct.productId(), orderProduct.quantity());
-                        return OrderLine.create(orderProduct.quantity(), product);
-                    } catch (IllegalStateException illegalStateException) {
-                        throw new IllegalStateException(ExceptionMessage.PRODUCT_NOT_FOUND.getMessage());
-                    } catch (IllegalArgumentException illegalArgumentException) {
-                        throw new IllegalArgumentException(ExceptionMessage.PRODUCT_REDUCE_FAILED.getMessage());
-                    }
+                    Product product = productService.reduceProduct(orderProduct.productId(), orderProduct.quantity());
+                    return OrderLine.create(orderProduct.quantity(), product);
                 })
                 .toList();
 

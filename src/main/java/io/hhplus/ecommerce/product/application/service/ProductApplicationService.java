@@ -18,7 +18,7 @@ public class ProductApplicationService implements ProductService {
 
     @Override
     public Optional<Product> getProduct(long productId) {
-        return productRepository.findByProductId(productId);
+        return productRepository.findById(productId);
     }
 
     @Override
@@ -27,10 +27,9 @@ public class ProductApplicationService implements ProductService {
     }
 
     @Override
-    @Transactional
     public Product reduceProduct(long productId, long quantity) {
 
-        Product product = productRepository.findByProductId(productId)
+        Product product = productRepository.findByIdForUpdate(productId)
                 .orElseThrow(() -> new IllegalStateException(ExceptionMessage.PRODUCT_NOT_FOUND.getMessage()));
 
         product.reduceStock(quantity);
