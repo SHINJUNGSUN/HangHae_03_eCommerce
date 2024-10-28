@@ -41,17 +41,4 @@ public class ProductEntity extends TimeStamped {
                 .stock(this.stock)
                 .build();
     }
-
-//    public void reduceProduct(long quantity) {
-//
-//        if(quantity <= 0) {
-//            throw new ProductException(ProductError.INVALID_QUANTITY);
-//        }
-//
-//        if(this.stock < quantity) {
-//            throw new ProductException(ProductError.INSUFFICIENT_STOCK);
-//        }
-//
-//        this.stock -= quantity;
-//    }
 }

@@ -5,7 +5,6 @@ import io.hhplus.ecommerce.user.application.service.UserPointService;
 import io.hhplus.ecommerce.user.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor

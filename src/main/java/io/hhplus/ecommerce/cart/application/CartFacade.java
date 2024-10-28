@@ -10,7 +10,6 @@ import io.hhplus.ecommerce.product.application.service.ProductService;
 import io.hhplus.ecommerce.product.domain.model.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
