@@ -11,10 +11,10 @@ spring:
     hibernate:
       ddl-auto: none
     open-in-view: false
-    properties:
-      hibernate:
-        show_sql: true
-
+  decorator:
+    datasource:
+      p6spy:
+        enable-logging: true
   sql:
     init:
       mode: always

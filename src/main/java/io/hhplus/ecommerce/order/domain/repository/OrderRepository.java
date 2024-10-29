@@ -3,8 +3,6 @@ package io.hhplus.ecommerce.order.domain.repository;
 import io.hhplus.ecommerce.order.domain.model.Order;
 import io.hhplus.ecommerce.order.domain.model.OrderLine;
 import io.hhplus.ecommerce.order.domain.model.OrderStatus;
-import jakarta.persistence.LockModeType;
-import org.springframework.data.jpa.repository.Lock;
 
 import java.time.LocalDateTime;
 import java.util.List;

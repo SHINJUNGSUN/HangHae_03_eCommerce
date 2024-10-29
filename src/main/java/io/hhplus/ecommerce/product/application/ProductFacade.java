@@ -33,9 +33,6 @@ public class ProductFacade {
         LocalDateTime startDateTime = now.minusDays(3).toLocalDate().atStartOfDay();
         LocalDateTime endDateTime = now.minusDays(1).toLocalDate().atTime(LocalTime.MAX);
 
-        log.info(startDateTime.toString());
-        log.info(endDateTime.toString());
-
         return orderService.getPopularProducts(startDateTime, endDateTime)
                 .stream()
                 .map(productId -> productService.getProduct(productId)

@@ -93,7 +93,6 @@ public class ProductIntegrationTest {
     @Test
     @DisplayName("상품 목록 조회 성공")
     void products() {
-
         // When
         List<ProductResponse> response = productFacade.getProducts();
 
@@ -113,7 +112,6 @@ public class ProductIntegrationTest {
     void popularProducts() {
         // When
         List<ProductResponse> response = productFacade.getPopularProducts();
-
 
         // Then
         assertThat(response)

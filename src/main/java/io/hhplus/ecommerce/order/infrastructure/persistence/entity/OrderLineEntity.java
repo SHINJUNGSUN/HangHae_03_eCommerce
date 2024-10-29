@@ -28,6 +28,7 @@ public class OrderLineEntity extends TimeStamped {
     private Long quantity;
 
     public static OrderLineEntity from(OrderLine orderLine) {
+
         return OrderLineEntity.builder()
                 .id(orderLine.getOrderLineId())
                 .orderId(orderLine.getOrderId())

@@ -4,7 +4,6 @@ import io.hhplus.ecommerce.common.annotation.CurrentUser;
 import io.hhplus.ecommerce.user.application.UserFacade;
 import io.hhplus.ecommerce.user.application.dto.*;
 import io.hhplus.ecommerce.common.model.CommonApiResponse;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

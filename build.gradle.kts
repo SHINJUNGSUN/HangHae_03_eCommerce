@@ -26,6 +26,7 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
+    implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.mindrot:jbcrypt:0.4")
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
