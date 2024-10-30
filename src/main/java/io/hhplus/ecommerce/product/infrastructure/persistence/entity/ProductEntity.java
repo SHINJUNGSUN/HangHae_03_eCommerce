@@ -24,6 +24,9 @@ public class ProductEntity extends TimeStamped {
 
     private Long stock;
 
+    @Version
+    private long version;
+
     public static ProductEntity from(Product product) {
         return ProductEntity.builder()
                 .id(product.getProductId())
