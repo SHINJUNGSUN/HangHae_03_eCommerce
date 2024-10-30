@@ -40,4 +40,8 @@ public class ProductFacade {
                 .map(ProductResponse::from)
                 .toList();
     }
+
+    public ProductResponse reduceProduct(long productId, long amount) {
+        return ProductResponse.from(productService.reduceProduct(productId, amount));
+    }
 }
