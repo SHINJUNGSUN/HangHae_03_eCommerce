@@ -25,7 +25,7 @@ public class ProductEntity extends TimeStamped {
     private Long stock;
 
     @Version
-    private long version;
+    private Long version;
 
     public static ProductEntity from(Product product) {
         return ProductEntity.builder()
@@ -33,6 +33,7 @@ public class ProductEntity extends TimeStamped {
                 .productName(product.getProductName())
                 .unitPrice(product.getUnitPrice())
                 .stock(product.getStock())
+                .version(product.getVersion())
                 .build();
     }
 
@@ -42,6 +43,7 @@ public class ProductEntity extends TimeStamped {
                 .productName(this.productName)
                 .unitPrice(this.unitPrice)
                 .stock(this.stock)
+                .version(this.version)
                 .build();
     }
 }
