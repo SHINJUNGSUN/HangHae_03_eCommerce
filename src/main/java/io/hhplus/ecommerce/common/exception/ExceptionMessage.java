@@ -18,7 +18,8 @@ public enum ExceptionMessage {
     INVALID_QUANTITY("유효하지 않은 수량입니다."),
     INSUFFICIENT_STOCK("상품 재고가 부족합니다."),
     ORDER_NOT_FOUND("존재하지 않는 주문입니다."),
-    PRODUCT_REDUCE_FAILED("상품 재고 감소에 실패하였습니다.");
+    PRODUCT_REDUCE_FAILED("상품 재고 감소에 실패하였습니다."),
+    REDIS_LOCK_ACQUIRE_FAILED("레디스 락 획득에 실패하였습니다. ");
 
     String message;
 }

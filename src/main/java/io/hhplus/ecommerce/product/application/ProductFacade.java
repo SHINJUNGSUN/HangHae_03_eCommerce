@@ -1,5 +1,6 @@
 package io.hhplus.ecommerce.product.application;
 
+import io.hhplus.ecommerce.common.annotation.DistributedLock;
 import io.hhplus.ecommerce.order.application.service.OrderService;
 import io.hhplus.ecommerce.product.application.dto.ProductResponse;
 import io.hhplus.ecommerce.product.application.service.ProductService;
@@ -41,6 +42,7 @@ public class ProductFacade {
                 .toList();
     }
 
+    @DistributedLock(key = "'product'.concat(':').concat(#productId)")
     public ProductResponse reduceProduct(long productId, long amount) {
         return ProductResponse.from(productService.reduceProduct(productId, amount));
     }
