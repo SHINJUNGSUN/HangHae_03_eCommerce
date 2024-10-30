@@ -17,8 +17,6 @@ public class Product {
 
     private Long stock;
 
-    private Long version;
-
     public static Product notAvailable(long productId) {
         return Product.builder()
                 .productId(productId)

@@ -42,7 +42,6 @@ CREATE TABLE `ecommerce`.`product`
     `stock`  BIGINT NOT NULL    COMMENT '재고',
     `created_at`    DATETIME    NOT NULL    COMMENT '상품 생성 일시',
     `updated_at`    DATETIME    NOT NULL    COMMENT '상품 갱신 일시',
-    `version`  BIGINT NOT NULL    COMMENT '버전',
     PRIMARY KEY (`id`)
 );
 
