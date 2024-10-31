@@ -8,6 +8,7 @@ CREATE TABLE `test`.`user`
     `point`     BIGINT      NOT NULL    COMMENT '포인트 잔액',
     `created_at`    DATETIME    NOT NULL    COMMENT '사용자 생성 일시',
     `updated_at`    DATETIME    NOT NULL    COMMENT '사용자 갱신 일시',
+    `version`   BIGINT      NOT NULL    COMMENT '버전',
     PRIMARY KEY (`id`)
 );
 

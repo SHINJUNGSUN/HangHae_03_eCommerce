@@ -18,6 +18,8 @@ public class User {
 
     private UserPoint userPoint;
 
+    private Long version;
+
     public static User signUp(String userId, String encodedPassword, String userName) {
         return User.builder()
                 .userId(userId)
