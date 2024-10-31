@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -41,8 +42,15 @@ public class OrderIntegrationTest {
     @Container
     static MySQLContainer<?> mySQLContainer;
 
+    @Container
+    static GenericContainer<?> redisContainer;
+
     static {
         mySQLContainer = new MySQLContainer<>("mysql:8.0");
+        redisContainer = new GenericContainer<>("redis:6.2.1").withExposedPorts(6379);
+        redisContainer.start();
+        System.setProperty("spring.data.redis.host", redisContainer.getHost());
+        System.setProperty("spring.data.redis.port", redisContainer.getMappedPort(6379).toString());
     }
 
     @DynamicPropertySource

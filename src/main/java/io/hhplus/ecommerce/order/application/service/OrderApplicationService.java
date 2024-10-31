@@ -28,6 +28,7 @@ public class OrderApplicationService implements OrderService {
     }
 
     @Override
+    @Transactional
     public Order createOrder(long userSeq, List<OrderLine> orderLines) {
 
         Order order = orderRepository.save(Order.create(userSeq));

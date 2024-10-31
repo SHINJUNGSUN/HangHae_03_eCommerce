@@ -1,6 +1,6 @@
 package io.hhplus.ecommerce.order.application;
 
-import io.hhplus.ecommerce.common.exception.ExceptionMessage;
+import io.hhplus.ecommerce.common.annotation.DistributedLock;
 import io.hhplus.ecommerce.order.application.dto.OrderRequest;
 import io.hhplus.ecommerce.order.application.dto.OrderResponse;
 import io.hhplus.ecommerce.order.application.service.OrderService;
@@ -20,7 +20,6 @@ public class OrderFacade {
     private final OrderService orderService;
     private final ProductService productService;
 
-    @Transactional
     public OrderResponse createOrder(long userSeq, OrderRequest request) {
 
         List<OrderLine> orderLines = request.OrderProductList()
