@@ -25,6 +25,9 @@ public class UserEntity extends TimeStamped {
 
     private Long point;
 
+    @Version
+    private Long version;
+
     public static UserEntity from(User user) {
         return UserEntity.builder()
                 .id(user.getUserSeq())
@@ -32,6 +35,7 @@ public class UserEntity extends TimeStamped {
                 .password(user.getPassword())
                 .userName(user.getUserName())
                 .point(user.getUserPoint().getPoint())
+                .version(user.getVersion())
                 .build();
     }
 
@@ -42,6 +46,7 @@ public class UserEntity extends TimeStamped {
                 .password(this.password)
                 .userName(this.userName)
                 .userPoint(UserPoint.of(this.point))
+                .version(this.version)
                 .build();
     }
 }

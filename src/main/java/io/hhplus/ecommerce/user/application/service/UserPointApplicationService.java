@@ -5,6 +5,9 @@ import io.hhplus.ecommerce.user.domain.model.PointHistory;
 import io.hhplus.ecommerce.user.domain.model.User;
 import io.hhplus.ecommerce.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +25,11 @@ public class UserPointApplicationService implements UserPointService {
 
     @Override
     @Transactional
+    @Retryable(
+            retryFor = {ObjectOptimisticLockingFailureException.class},
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 500)
+    )
     public User chargePoint(long userSeq, long amount) {
 
         User user = userRepository.findById(userSeq)
@@ -36,6 +44,11 @@ public class UserPointApplicationService implements UserPointService {
 
     @Override
     @Transactional
+    @Retryable(
+            retryFor = {ObjectOptimisticLockingFailureException.class},
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 500)
+    )
     public User usePoint(long userSeq, long amount) {
 
         User user = userRepository.findById(userSeq)

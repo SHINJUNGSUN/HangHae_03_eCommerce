@@ -36,11 +36,4 @@ public class ProductController {
     public CommonApiResponse<List<ProductResponse>> topProducts() {
         return CommonApiResponse.success(productFacade.getPopularProducts());
     }
-
-    @Operation(summary = "상위 상품 조회 API")
-    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProductResponse.class))))
-    @PostMapping("/reduce")
-    public CommonApiResponse<ProductResponse> reduce(@RequestBody ProductRequest request) {
-        return CommonApiResponse.success(productFacade.reduceProduct(request.productId(), request.amount()));
-    }
 }

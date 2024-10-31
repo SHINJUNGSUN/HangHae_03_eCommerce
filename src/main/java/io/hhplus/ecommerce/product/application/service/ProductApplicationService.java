@@ -1,5 +1,6 @@
 package io.hhplus.ecommerce.product.application.service;
 
+import io.hhplus.ecommerce.common.annotation.DistributedLock;
 import io.hhplus.ecommerce.common.exception.ExceptionMessage;
 import io.hhplus.ecommerce.product.domain.model.Product;
 import io.hhplus.ecommerce.product.domain.repository.ProductRepository;
@@ -28,6 +29,7 @@ public class ProductApplicationService implements ProductService {
 
     @Override
     @Transactional
+    @DistributedLock(key = "'product'.concat(':').concat(#productId)")
     public Product reduceProduct(long productId, long quantity) {
 
         Product product = productRepository.findById(productId)

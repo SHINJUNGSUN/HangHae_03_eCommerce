@@ -41,9 +41,4 @@ public class ProductFacade {
                 .map(ProductResponse::from)
                 .toList();
     }
-
-    @DistributedLock(key = "'product'.concat(':').concat(#productId)")
-    public ProductResponse reduceProduct(long productId, long amount) {
-        return ProductResponse.from(productService.reduceProduct(productId, amount));
-    }
 }
