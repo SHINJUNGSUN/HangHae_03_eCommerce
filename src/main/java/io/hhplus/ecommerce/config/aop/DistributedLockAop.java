@@ -43,8 +43,10 @@ public class DistributedLockAop {
         } catch (InterruptedException e) {
             throw new IllegalStateException(ExceptionMessage.REDIS_LOCK_ACQUIRE_FAILED.getMessage());
         } finally {
-            lock.unlock();
-            log.info("락 해제(KEY: {})", key);
+            if(lock != null && lock.isHeldByCurrentThread()) {
+                lock.unlock();
+                log.info("락 해제(KEY: {})", key);
+            }
         }
     }
 }
