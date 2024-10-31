@@ -11,7 +11,7 @@ spring:
     hibernate:
       ddl-auto: validate
     open-in-view: false
-  decorator:
-    datasource:
-      p6spy:
-        enable-logging: true
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: false

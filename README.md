@@ -23,7 +23,10 @@
 1. [Swagger](#1-erd-설계)
 
 ### `Step09`
-1. [Chapter02 회고](#1-erd-설계)
+1. [Chapter02 회고](#1-chapter02-회고)
+
+### `Step11`
+1. [동시성 문제에 대한 고찰](#동시성-문제에-대한-고찰)
 ---
 
 ## `Step5`
@@ -743,5 +746,358 @@ sequenceDiagram
 설계가 제대로 되어 있다면, 개발 속도는 자연스럽게 빨라지고 리팩토링 시에도 큰 어려움이 없습니다.
 설계 단계에서 충분한 시간과 자원을 투자하면, 이후의 개발 과정에서 발생할 수 있는 문제를 미연에 방지할 수 있습니다.
 이번 챕터 통해 설계의 중요성을 더욱 깊이 느낄 수 있었으며, 앞으로의 프로젝트에서도 초기 설계에 더 집중하고자 합니다.
+
+</details>
+
+## `Step11`
+## 동시성 문제에 대한 고찰
+<details>
+<summary>내용 보기</summary>
+
+## 동시성 문제(Concurrency Issue)
+
+여러 프로세스나 스레드가 동시에 같은 데이터에 접근하려 할 때 데이터의 일관성을 해칠 수 있는 상황을 말한다.
+
+`동시성 문제`와 함께 확인해야 할 개념이 있다. 
+
+### 공유 자원(Shared Resource)
+
+`공유 자원`은 여러 프로세스나 스레드가 접근할 수 있는 자원을 말한다.
+
+### 경쟁 상태(Race Condition)
+
+`경쟁 상태`는 `공유 자원`을 동시에 읽거나 쓰는 경우 발생할 수 있는 상황으로, `공유 자원`에 접근하는 순서와 타이밍에 따라 실행 결과가 달라지며, 데이터의 일관성이 보장되지 않는 문제가 발생한다. 
+
+`Example` 입출금 문제
+
+![img.png](docs/step11/img.png)
+
+- `Thread-1`과 `Thread-2`는 동시에 계좌 잔액 1,000원을 조회한다.
+- `Thread-1`은 500원을 입금하여 계좌 잔액을 1,500원으로 저장한다.
+- `Thread-2`는 500원을 인출하여 계좌 잔액을 500원으로 저장한다.
+
+계좌 잔액이 1,000원인 상황에서 `Thread-1`이 500원을 입금하고 `Thread-2`가 500원을 출금한다면 계좌 잔액은 1,000원이어야 한다. 그러나, `공유 자원`인 계좌 잔액에 대해 `Thread-1`과 `Thread-2` 사이에서 `경쟁 상태`가 발생할 수 있으며 최종 계좌 잔액은 1,000원이 아닐 가능성이 있다.
+
+그렇다면 이러한 상황은 왜 발생하는 것일까?
+
+바로, `원자성(Atomicity)`과 `가시성(Visibility)`이 보장되지 않았기 때문이다.
+
+`원자성`은 하나의 작업이 중간에 끼어들거나 나누어지지 않고, 완전히 실행되거나 전혀 실행되지 않아야 함을 말한다. 즉, 계좌 잔액을 조회하고 값을 변경한 후, 변경된 값을 저장하는 것이 모두 하나의 단위 작업으로 실행 되어야 한다.
+
+`가시성`은 하나의 프로세스나 스레드가 수정한 값을 다른 프로세스나 스레드가 즉시 확인할 수 있어야 함을 의미한다. 위 그림과 같이, `Thread-1`이 변경한 계좌 잔액이 `Thread-2`에 반영되지 않아 데이터의 일관성이 깨질 수 있다.
+
+### 임계 영역(Critical Section)
+
+![img.png](docs/step11/img01.png)
+
+(출처: https://nailyourinterview.org/interview-resources/operating-systems/critical-section-problem/)
+
+`공유 자원`에 접근하는 영역을 `임계 영역`이라고 하며, `경쟁 상태`가 발생하는 영역이다.
+
+`임계 영역`에서 `동기화 기법`을 통해 `경쟁 상태`를 해결할 수 있으며, 설계시 고려해야 할 조건이 있다. 
+
+1. `상호 배제(Mutual Exclusion)`: 임계 영역에 동시에 하나의 프로세스나 스레드만 접근할 수 있도록 보장하는 특성을 말한다.
+2. `진행(Progress)`: 임계 영역에 진입하려는 스레드가 하나라도 있을 경우, 다른 스레드가 해당 진입을 방해하지 않도록 보장하는 특성을 말한다.
+3. `한정 대기(Bounded Waiting)`: 스레드가 임계 영역에 들어가기 위해 무한히 기다리지 않도록 보장하는 특성을 말한다.
+
+`동기화 기법`에는 대표적으로 `lock`, `synchronized`키워드를 활용하는 방법이 있으며, `Chapter01. TDD & Clean Architecture`에서 학습했던 내용이다.
+
+이번 과제에서는 데이터베이스에서 발생할 수 있는 동시성 문제를 파악하고 해결해보고자 한다.
+
+## 데이터베이스의 동시성 문제
+
+다수의 사용자가 동시에 데이터베이스에 접근하여 동일한 데이터를 조회하거나 수정하는 상황이 발생한다.
+
+이때, 발생할 수 있는 동시성 문제는 아래와 같다.
+
+### 갱신 분실(Lost Update)
+
+`갱신 분실`은 여러 트랜잭션이 동시에 데이터를 수정하면서 하나의 트랜잭션 작업의 결과가 분신되는 문제를 말한다.
+
+![img_1.png](docs/step11/img02.png)
+
+- `Transaction1`이 상품 재고(10개)를 조회한다. 
+- `Transaction2`도 상품 재고(10개)를 조회한다.
+- `Transaction1`이 상품 재고를 20개로 업데이트한다.
+- `Transaction2`도 상품 재고를 5개로 업데이트한다.
+
+`Transaction1`의 업데이트가 `Transaction2`의 업데이트에 의해 분실되는 상황이 발생한다.
+
+### 모순성(Inconsistency)
+
+
+
+## 데이터베이스의 동시성 문제 해결 방안
+
+그렇다면, 동시성 문제를 해결할 수 있는 방법은 무엇이 있을까?
+
+
+## 이커머스 과제에서의 동시성 문제 해결
+
+데이터베이스의 동시성 문제를 해결하기 위한 동시성 제어 기법에는 `Database Lock`과 `Redis`를 활용한`Distributed Lock`이 있다. 테스트를 통해 동시성 제어 기법을 비교하여 이번 과제에서 발생할 수 있는 동시성 문제를 해결하고자 한다.
+
+동시성 제어 기법을 비교하기 위한 테스트는 아래 테스트 시나리오를 바탕으로 `JMeter`를 활용하여 진행하였다.
+
+```
+[시나리오]
+
+최초 재고가 10,000개인 특정 상품(Laptop)에 대해 아래와 같이 요청을 보낸다.
+
+100명의 사용자가 동시에 재고 1개 차감 요청
+1,000명의 사용자가 동시에 재고 1개 차감 요청
+5,000명의 사용자가 동시에 재고 1개 차감 요청
+```
+
+재고 차감 로직은 아래와 같이 구현하였다.
+
+```java
+@Transactional
+public Product reduceProduct(long productId, long quantity) {
+    
+    // 01. 재고 조회 
+	Product product = productRepository.findById(productId)
+			.orElseThrow(() -> new IllegalStateException(ExceptionMessage.PRODUCT_NOT_FOUND.getMessage()));
+    
+    // 02. 재고 차감
+	product.reduceStock(quantity);
+
+    // 03. 저장
+	return productRepository.save(product);
+}
+```
+
+### CASE01. 트랜잭션 격리 수준
+
+현재 데이터베이스에 설정된 트랜잭션 격리 수준을 확인하기 위해 쿼리문 `SELECT @@GLOBAL(or SESSION).transaction_isolation`을 실행하였다.
+
+![img.png](docs/step11/img03.png)
+
+InnoDB의 기본값인 `REPEATABLE_READ`로 설정되어 있는 것을 확인하였다.
+
+`REPEATABLE_READ` 상태에서 테스트를 진행하였으며, `Dirty Read`는 방지할 수 있으나, 여전히 `Lost Upate`나 `Phantom Read` 문제가 발생할 가능성이 있다. 테스트 결과는 아래와 같았다.
+
+`테스트 결과`
+
+`상품 재고`
+
+![img.png](docs/step11/img04.png)
+![img_1.png](docs/step11/img05.png)
+![img_2.png](docs/step11/img06.png)
+
+`JMeter`
+
+![img_3.png](docs/step11/img07.png)
+
+최종 상품 재고는 `3,900`이어야 하지만 `9,301`인 것을 확인할 수 있다. 
+
+일부 재고 차감 요청이 누락되거나, 잘못된 재고 수량으로 갱신된 것으로 보인다.
+
+`REPEATABLE_READ`는 같은 트랜잭션 내에서 데이터의 일관성을 어느 정도 보장하지만, 다수의 요청이 동시에 발생할 때 데이터 일관성을 보장하지 못하는 것으로 보인다.
+
+따라서, 추가적인 동시성 제어 기법이 필요하다.
+
+### CASE02. 낙관적 락(Optimistic Lock) 적용
+
+`@Version`필드를 통해 버전 관리를 설정하고, `@Lock(LockModeType.OPTIMISTIC)`으로 `낙관적 락`을 적용하였다.
+
+```java
+@Version
+private long version;
+
+@Lock(LockModeType.OPTIMISTIC)
+Optional<ProductEntity> findById(long id);
+```
+각 트랜잭션은 재고를 수정하기 전 버전 정보를 확인하여, 수정 중 데이터가 다른 트랜잭션에 의해 변경되었을 경우 충돌을 감지한다.
+
+`테스트 결과`
+
+`상품 재고`
+
+![img_4.png](docs/step11/img08.png)
+![img_5.png](docs/step11/img09.png)
+![img_6.png](docs/step11/img10.png)
+
+`JMeter`
+
+![img_7.png](docs/step11/img11.png)
+
+충돌로 인해 89.9%의 트랜잭션에서 `ObjectOptimisticLockingFailureException`이 발생한 것을 확인할 수 있다. 해당 요청은 자동으로 롤백되었으며, 증가한 버전 만큼 상품 재고가 차감된 것을 확인 할 수 있다.
+
+`낙관적 락`은 충돌이 많은 환경에서 다수의 트랜잭션이 반복적으로 실패할 수 있어 재시도 로직이 필요할 것으로 보인다.
+
+`implementation("org.springframework.retry:spring-retry")`의 `@Retryable` 어노테이션을 활용하여 재시도 로직을 쉽게 구현할 수 있다.
+
+```java
+@Transactional
+@Retryable(
+        retryFor = {ObjectOptimisticLockingFailureException.class},
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 500)
+)
+public Product reduceProduct(long productId, long quantity) {
+
+    Product product = productRepository.findById(productId)
+            .orElseThrow(() -> new IllegalStateException(ExceptionMessage.PRODUCT_NOT_FOUND.getMessage()));
+
+    product.reduceStock(quantity);
+
+    return productRepository.save(product);
+}
+```
+
+재시도 로직을 추가한다면 충돌로 인한 실패율이 낮아져 전반적으로 처리율이 개선될 것으로 예상되며, 재시도로 인한 DB 부하가 증가할 것으로 예상된다.
+
+### CASE03. 비관적 락(Pessimistic Lock) 적용
+
+`@Lock(LockModeType.PESSIMISTIC_WRITE)`으로 `비관적 락`을 적용하여 다른 트랜잭션이 해당 자원을 수정하지 못하도록 하였다.
+
+```java
+@Lock(LockModeType.PESSIMISTIC_WRITE)
+Optional<ProductEntity> findById(long id);
+```
+`테스트 결과`
+
+`상품 재고`
+
+![img.png](docs/step11/img12.png)
+![img_1.png](docs/step11/img13.png)
+![img_2.png](docs/step11/img14.png)
+
+`JMeter`
+
+![img_3.png](docs/step11/img15.png)
+
+상품 재고 차감이 정확하게 이루어진 것을 확인할 수 있다. 그러나 `비관적 락`으로 인해 다수의 요청이 대기 상태로 전환 되면서, 처리 시간이 증가한 것을 확인할 수 있다.
+
+### CASE04. 분산 락(Distributed Lock) 적용
+
+`Redis`는 `RedLock`알고리즘을 통해 `Lock`을 제공하며, `Jedis`, `Lettuce`, `Redisson` 다양한 라이브러리를 활용할 수 있다.
+
+`Redisson`을 활용하여 분산락을 구현하기 위해 `implementation("org.redisson:redisson-spring-boot-starter:3.37.0")` 의존성을 추가하였다.
+
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface DistributedLock {
+
+  String key();
+
+  TimeUnit timeUnit() default TimeUnit.MILLISECONDS;
+
+  long waitTime() default 5000L;
+
+  long leaseTime() default 3000L;
+}
+
+
+@Slf4j
+@Aspect
+@Component
+@RequiredArgsConstructor
+public class DistributedLockAop {
+
+  private final RedissonClient redissonClient;
+
+  @Around("@annotation(io.hhplus.ecommerce.common.annotation.DistributedLock)")
+  public Object lock(ProceedingJoinPoint joinPoint) throws Throwable {
+    MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+    DistributedLock distributedLock = methodSignature.getMethod().getAnnotation(DistributedLock.class);
+
+    String key = (String) CustomSpringELParser.getDynamicValue(methodSignature.getParameterNames(), joinPoint.getArgs(), distributedLock.key());
+
+    RLock lock = redissonClient.getLock("LOCK:" + key);
+
+    try {
+
+      boolean available = lock.tryLock(distributedLock.waitTime(), distributedLock.leaseTime(), distributedLock.timeUnit());
+
+      if (!available) {
+        throw new IllegalStateException(ExceptionMessage.REDIS_LOCK_ACQUIRE_FAILED.getMessage());
+      }
+
+      log.info("락 획득(KEY: {})", key);
+      return joinPoint.proceed();
+    } catch (InterruptedException e) {
+      throw new IllegalStateException(ExceptionMessage.REDIS_LOCK_ACQUIRE_FAILED.getMessage());
+    } finally {
+      lock.unlock();
+      log.info("락 해제(KEY: {})", key);
+    }
+  }
+}
+
+@DistributedLock(key = "'product'.concat(':').concat(#productId)")
+public ProductResponse reduceProduct(long productId, long amount) {
+    return ProductResponse.from(productService.reduceProduct(productId, amount));
+}
+
+@Transactional
+public Product reduceProduct(long productId, long quantity) {
+
+  Product product = productRepository.findById(productId)
+          .orElseThrow(() -> new IllegalStateException(ExceptionMessage.PRODUCT_NOT_FOUND.getMessage()));
+
+  product.reduceStock(quantity);
+
+  return productRepository.save(product);
+}
+```
+![img_5.png](docs/step11/img16.png)
+
+위 그림과 같이 각 요청은 락 획득을 성공한 후 트랜잭션을 시작하여 상품 재고를 차감하고 트랜잭션이 종료된 후 락을 해제한다.
+
+`테스트 결과`
+
+`상품 재고`
+
+![img_4.png](docs/step11/img17.png)
+![img_6.png](docs/step11/img18.png)
+![img_7.png](docs/step11/img19.png)
+
+`JMeter`
+
+![img_8.png](docs/step11/img20.png)
+
+발생한 1.21%의 예외는 락을 획득하지 못한 요청에서 발생하였으며, 해당 예외를 제외한 요청에 대한 상품 재고 차감은 정확히 반영된 것을 확인하였다.
+
+### 포인트 충전 및 차감 로직
+
+`포인트`는 개별적으로 관리되어 해당 자원에 접근하는 주체가 명확히 구분된다.
+
+충돌 가능성이 낮고, 충돌이 발생하더라도 재시도가 용이하므로, `낙관적 락(Optimistic Lock)`을 통해 동시성 문제를 해결하고자 한다.
+
+### 상품 재고 차감 로직
+
+`상품 재고`는 동시에 여러 사용자가 동일한 상품에 접근할 수 있으며, 충돌 시 재고 수량의 정확한 유지가 필수적이다. 
+
+특히 동시에 다수의 차감 요청이 발생할 가능성이 높아, 명확한 동시성 제어 기법이 필요할 것으로 보인다.
+
+`Redis 분산 락(Distributed Lock)` 또는 `비관적 락(Pessimistic Lock)`을 통해 동시성 문제를 제어하고자 한다.
+
+`Redis 분산 락(Distributed Lock)`
+
+여러 서버에서 접근하더라도 Redis 락을 통해 일관성 있게 재고를 관리할 수 있으며, 락 타임아웃과 같은 부하 제어가 가능하다.
+
+Redis 분산 락을 사용해 특정 상품의 재고 차감 시 락을 선점하고, 재고 차감 로직이 완료된 후 락을 해제하는 방식으로 구현한다.
+
+재시도 로직과 함께 타임아웃을 설정하여 락 점유 시간이 길어지는 것을 방지하고, 응답 속도를 최적화할 수 있다.
+
+`비관적 락(Pessimistic Lock)`
+
+충돌 가능성을 원천적으로 차단하여, 재고 차감 로직이 확실하게 일관성을 유지할 수 있다.
+
+트랜잭션 시작 시 PESSIMISTIC_WRITE 락을 사용해 자원을 점유한 후, 재고 차감 완료 후에 락을 해제한다.
+
+비관적 락의 경우 대기 시간이 증가할 수 있는 단점이 있다.
+
+### 결론
+
+1. 포인트 충전 및 차감 로직 
+   - 낙관적 락
+   - 충돌 발생 시 재시도를 통해 일관성을 유지하며, 락 유지 비용을 최소화하여 성능을 보장한다.
+      
+2. 상품 재고 차감 로직
+   - Redis 분산 락
+   - 분산 환경에서 재고 일관성을 보장할 수 있도록 Redis 분산 락을 사용하고, 높은 동시성 환경에서도 안전하게 재고를 관리할 수 있다.
 
 </details>

@@ -28,6 +28,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
     implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.redisson:redisson-spring-boot-starter:3.37.0")
     implementation("org.mindrot:jbcrypt:0.4")
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     implementation("io.jsonwebtoken:jjwt-impl:0.11.5")

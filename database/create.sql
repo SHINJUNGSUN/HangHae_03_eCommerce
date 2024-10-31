@@ -3,6 +3,10 @@ CREATE USER ecommerce@'%' IDENTIFIED BY '1q2w3e4r!!';
 GRANT ALL PRIVILEGES ON ecommerce.* TO ecommerce@'%';
 FLUSH PRIVILEGES;
 
+CREATE USER 'exporter'@'%' IDENTIFIED BY '1q2w3e4r!!' WITH MAX_USER_CONNECTIONS 3;
+GRANT PROCESS, REPLICATION CLIENT, SELECT ON *.* TO 'exporter'@'%';
+FLUSH PRIVILEGES;
+
 DROP TABLE IF EXISTS `ecommerce`.`user`;
 CREATE TABLE `ecommerce`.`user`
 (

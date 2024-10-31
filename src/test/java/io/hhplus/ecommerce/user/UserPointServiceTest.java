@@ -81,7 +81,7 @@ public class UserPointServiceTest {
         // Given
         long userSeq = 1L;
         long amount = 1L;
-        when(userRepository.findByIdForUpdate(userSeq)).thenReturn(Optional.of(user));
+        when(userRepository.findById(userSeq)).thenReturn(Optional.of(user));
         when(userRepository.save(user)).thenReturn(user);
 
         // When
@@ -97,7 +97,7 @@ public class UserPointServiceTest {
         // Given
         long userSeq = 1L;
         long amount = 1L;
-        when(userRepository.findByIdForUpdate(userSeq)).thenReturn(Optional.of(user));
+        when(userRepository.findById(userSeq)).thenReturn(Optional.of(user));
         when(userRepository.save(user)).thenReturn(user);
 
         // When

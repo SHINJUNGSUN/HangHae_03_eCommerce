@@ -1,6 +1,7 @@
 package io.hhplus.ecommerce.product.interfaces;
 
 import io.hhplus.ecommerce.product.application.ProductFacade;
+import io.hhplus.ecommerce.product.application.dto.ProductRequest;
 import io.hhplus.ecommerce.product.application.dto.ProductResponse;
 import io.hhplus.ecommerce.common.model.CommonApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,9 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -36,5 +35,12 @@ public class ProductController {
     @GetMapping("/popular")
     public CommonApiResponse<List<ProductResponse>> topProducts() {
         return CommonApiResponse.success(productFacade.getPopularProducts());
+    }
+
+    @Operation(summary = "상위 상품 조회 API")
+    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProductResponse.class))))
+    @PostMapping("/reduce")
+    public CommonApiResponse<ProductResponse> reduce(@RequestBody ProductRequest request) {
+        return CommonApiResponse.success(productFacade.reduceProduct(request.productId(), request.amount()));
     }
 }

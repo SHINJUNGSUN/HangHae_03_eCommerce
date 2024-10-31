@@ -22,7 +22,7 @@ public class LoggingFilter implements Filter {
 
         long startTime = System.currentTimeMillis();
 
-        chain.doFilter(request, response);
+        chain.doFilter(httpServletRequest, httpServletResponse);
 
         log.info("[RESPONSE] STATUS: {} ({}ms)", httpServletResponse.getStatus(), (System.currentTimeMillis() - startTime));
     }

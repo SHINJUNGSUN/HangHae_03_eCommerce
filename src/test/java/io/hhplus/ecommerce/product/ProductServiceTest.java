@@ -87,7 +87,7 @@ public class ProductServiceTest {
         long productId = 1L;
         long quantity = 1L;
 
-        when(productRepository.findByIdForUpdate(productId)).thenReturn(Optional.of(product));
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
         when(productRepository.save(product)).thenReturn(product);
 
         // When
@@ -103,7 +103,7 @@ public class ProductServiceTest {
         // Given
         long productId = 1L;
         long quantity = 1L;
-        when(productRepository.findByIdForUpdate(productId)).thenReturn(Optional.empty());
+        when(productRepository.findById(productId)).thenReturn(Optional.empty());
 
         // When & Then
         assertThrows(IllegalStateException.class, () -> productApplicationService.reduceProduct(productId, quantity));

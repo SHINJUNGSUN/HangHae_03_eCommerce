@@ -21,11 +21,6 @@ public class ProductCoreRepository implements ProductRepository {
     }
 
     @Override
-    public Optional<Product> findByIdForUpdate(long productId) {
-        return productJpaRepository.findByIdForUpdate(productId).map(ProductEntity::toProduct);
-    }
-
-    @Override
     public List<Product> findAll() {
         return productJpaRepository.findAll()
                 .stream()
