@@ -1,12 +1,10 @@
 package io.hhplus.ecommerce.product.application.service;
 
-import io.hhplus.ecommerce.common.annotation.DistributedLock;
 import io.hhplus.ecommerce.common.exception.ExceptionMessage;
 import io.hhplus.ecommerce.product.domain.model.Product;
 import io.hhplus.ecommerce.product.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,8 +26,6 @@ public class ProductApplicationService implements ProductService {
     }
 
     @Override
-    @Transactional
-    @DistributedLock(key = "'product'.concat(':').concat(#productId)")
     public Product reduceProduct(long productId, long quantity) {
 
         Product product = productRepository.findById(productId)
@@ -38,5 +34,20 @@ public class ProductApplicationService implements ProductService {
         product.reduceStock(quantity);
 
         return productRepository.save(product);
+    }
+
+    @Override
+    public void saveProducts(long count) {
+
+        for(long i = 0; i < count; i++) {
+
+            String productName = "Product" + (i + 1);
+            long unitPrice = (i + 1) * 10000;
+            long stock = (i + 1) * 10;
+
+            Product product = Product.create(productName, unitPrice, stock);
+
+            productRepository.save(product);
+        }
     }
 }

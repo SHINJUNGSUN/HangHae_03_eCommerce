@@ -1,7 +1,6 @@
 package io.hhplus.ecommerce.product.interfaces;
 
 import io.hhplus.ecommerce.product.application.ProductFacade;
-import io.hhplus.ecommerce.product.application.dto.ProductRequest;
 import io.hhplus.ecommerce.product.application.dto.ProductResponse;
 import io.hhplus.ecommerce.common.model.CommonApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,5 +34,14 @@ public class ProductController {
     @GetMapping("/popular")
     public CommonApiResponse<List<ProductResponse>> topProducts() {
         return CommonApiResponse.success(productFacade.getPopularProducts());
+    }
+
+    @Operation(summary = "상품 생성 API")
+    @PostMapping("/{count}")
+    public CommonApiResponse<Boolean> saveProducts(@PathVariable() long count) {
+
+        productFacade.saveProducts(count);
+
+        return CommonApiResponse.success(true);
     }
 }

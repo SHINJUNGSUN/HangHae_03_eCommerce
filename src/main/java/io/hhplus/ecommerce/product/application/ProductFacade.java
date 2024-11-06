@@ -1,6 +1,5 @@
 package io.hhplus.ecommerce.product.application;
 
-import io.hhplus.ecommerce.common.annotation.DistributedLock;
 import io.hhplus.ecommerce.order.application.service.OrderService;
 import io.hhplus.ecommerce.product.application.dto.ProductResponse;
 import io.hhplus.ecommerce.product.application.service.ProductService;
@@ -40,5 +39,9 @@ public class ProductFacade {
                         .orElse(Product.notAvailable(productId)))
                 .map(ProductResponse::from)
                 .toList();
+    }
+
+    public void saveProducts(long count) {
+        productService.saveProducts(count);
     }
 }

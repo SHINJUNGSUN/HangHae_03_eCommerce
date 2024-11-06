@@ -8,29 +8,8 @@
 - MySQL 8.0
 - Swagger (http://localhost:8080/swagger-ui/index.html)
 
-## 목차
-
-### `Step05`
-1. [시나리오 선정](#1-시나리오-선정-e-커머스-서비스)
-2. [Milestone](#2-Milestone)
-3. [시퀀스 다이어그램](#3-시퀀스-다이어그램)
-
-### `Step06`
-1. [ERD 설계](#1-erd-설계)
-2. [API 명세 및 MockAPI](#2-api-명세-및-mockapi)
-
-### `Step07`
-1. [Swagger](#1-erd-설계)
-
-### `Step09`
-1. [Chapter02 회고](#1-chapter02-회고)
-
-### `Step11`
-1. [동시성 문제에 대한 고찰](#동시성-문제에-대한-고찰)
----
-
 ## `Step5`
-## 1. 시나리오 선정: `e-커머스 서비스`
+## 시나리오 선정: `e-커머스 서비스`
 <details>
 <summary>요구사항 보기</summary>
 
@@ -89,7 +68,7 @@
 
 </details>
 
-## 2. Milestone
+## Milestone
 <details>
 <summary>내용 보기</summary>
 
@@ -118,7 +97,7 @@
 
 </details>
 
-## 3. 시퀀스 다이어그램
+## 시퀀스 다이어그램
 <details>
 <summary>내용 보기</summary>
 
@@ -237,7 +216,7 @@ sequenceDiagram
 
 ## `Step6`
 
-## 1. ERD 설계
+## ERD 설계
 
 <details>
 <summary>내용 보기</summary>
@@ -253,7 +232,7 @@ sequenceDiagram
 
 </details>
 
-## 2. API 명세 및 MockAPI
+## API 명세 및 MockAPI
 
 <details>
 <summary>내용 보기</summary>
@@ -710,7 +689,7 @@ sequenceDiagram
 </details>
 
 ## `Step7`
-## 1. Swagger
+## Swagger
 <details>
 <summary>내용 보기</summary>
 
@@ -721,7 +700,7 @@ sequenceDiagram
 </details>
 
 ## `Step9`
-## 1. Chapter02 회고
+## Chapter02 회고
 <details>
 <summary>내용 보기</summary>
 
@@ -1099,5 +1078,57 @@ Redis 분산 락을 사용해 특정 상품의 재고 차감 시 락을 선점�
 2. 상품 재고 차감 로직
    - Redis 분산 락
    - 분산 환경에서 재고 일관성을 보장할 수 있도록 Redis 분산 락을 사용하고, 높은 동시성 환경에서도 안전하게 재고를 관리할 수 있다.
+
+</details>
+
+## `Step13`
+## `Redis`를 활용한 성능 개선
+<details>
+<summary>내용 보기</summary>
+
+이커머스 시나리오의 주요 `API`를 분석하고 `Redis`를 활용하여 성능을 개선하고자 한다.
+
+## `Redis`
+
+그렇다면 `Redis`는 무엇이며, 어떤 기능을 제공할까?
+
+## `API` 분석 및 개선
+
+우선, 사용자가 호출하는 빈도가 높고 `Redis`를 통한 성능 개선 효과가 클 것으로 예상되는 `API`를 선정하였다.
+
+### 1. 상품 목록 조회 API (`GET` /api/products) 
+
+- **분석**
+  - 해당 `API`는 `findAll`을 통해 모든 상품 데이터를 조회한다.
+  - 상품 데이터가 많아질수록 조회 시간이 길어질 가능성이 있다.
+  - 여러 사용자가 동시에 요청할 경우 데이터베이스에 부하가 발생할 가능성이 크다.
+
+
+- **문제 상황 테스트**
+  ```
+  [문제 상황]
+  
+  상품 데이터 5,000건을 1,000명의 사용자가 동시에 호출한다.
+  ```
+  문제 상황을 가정하고, 부하 테스트를 진행하였다.
+
+  ![img.png](docs/step13/img.png)
+  ```
+  [결과]
+  - 총 요청수: 1,000건
+  - 성공률: 100%
+  - 최대 응답시간: 13,114ms
+  - 최소 응답시간: 0ms
+  - 평균 응답시간: 7,389ms
+  - TPS(Transaction Per Second): 69.9/sec 
+  ```
+  
+  테스트 결과를 통해 안정적이지만 평균 응답시간이 7초 이상으로 상당히 오래 걸린 것을 확인할 수 있다.
+  
+- **개선 방안**
+  
+### 2. 상위 상품 조회 API (`GET` /api/products/popular)
+
+### 3. 장바구니 목록 조회 API (`GET` /api/carts)
 
 </details>
