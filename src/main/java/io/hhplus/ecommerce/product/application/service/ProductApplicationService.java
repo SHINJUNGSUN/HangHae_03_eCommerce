@@ -2,11 +2,12 @@ package io.hhplus.ecommerce.product.application.service;
 
 import io.hhplus.ecommerce.common.exception.ExceptionMessage;
 import io.hhplus.ecommerce.product.domain.model.Product;
+import io.hhplus.ecommerce.product.domain.model.Products;
 import io.hhplus.ecommerce.product.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -21,8 +22,9 @@ public class ProductApplicationService implements ProductService {
     }
 
     @Override
-    public List<Product> getProducts() {
-        return productRepository.findAll();
+    @Cacheable(cacheNames = "products", key = "'allProducts'")
+    public Products getProducts() {
+        return Products.from(productRepository.findAll());
     }
 
     @Override

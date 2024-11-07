@@ -22,7 +22,7 @@ public class ProductFacade {
 
 
     public List<ProductResponse> getProducts() {
-        return productService.getProducts()
+        return productService.getProducts().getProducts()
                 .stream()
                 .map(ProductResponse::from)
                 .toList();

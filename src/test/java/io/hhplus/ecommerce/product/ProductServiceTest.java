@@ -2,6 +2,7 @@ package io.hhplus.ecommerce.product;
 
 import io.hhplus.ecommerce.product.application.service.ProductApplicationService;
 import io.hhplus.ecommerce.product.domain.model.Product;
+import io.hhplus.ecommerce.product.domain.model.Products;
 import io.hhplus.ecommerce.product.domain.repository.ProductRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,10 +70,10 @@ public class ProductServiceTest {
         when(productRepository.findAll()).thenReturn(List.of(product));
 
         // Act
-        List<Product> response = productApplicationService.getProducts();
+        Products response = productApplicationService.getProducts();
 
         // When
-        assertThat(response)
+        assertThat(response.getProducts())
                 .hasSize(1)
                 .extracting(i -> tuple(i.getProductId(), i.getProductName(), i.getStock(), i.getUnitPrice()))
                 .containsExactly(
