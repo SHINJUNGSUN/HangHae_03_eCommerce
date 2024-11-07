@@ -1,7 +1,6 @@
 package io.hhplus.ecommerce.product.interfaces;
 
 import io.hhplus.ecommerce.product.application.ProductFacade;
-import io.hhplus.ecommerce.product.application.dto.ProductRequest;
 import io.hhplus.ecommerce.product.application.dto.ProductResponse;
 import io.hhplus.ecommerce.common.model.CommonApiResponse;
 import io.swagger.v3.oas.annotations.Operation;

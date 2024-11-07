@@ -1,12 +1,12 @@
 package io.hhplus.ecommerce.product.application.service;
 
-import io.hhplus.ecommerce.common.annotation.DistributedLock;
 import io.hhplus.ecommerce.common.exception.ExceptionMessage;
 import io.hhplus.ecommerce.product.domain.model.Product;
 import io.hhplus.ecommerce.product.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +18,7 @@ public class ProductApplicationService implements ProductService {
     private final ProductRepository productRepository;
 
     @Override
+    @Cacheable(cacheNames = "products", key = "#productId")
     public Optional<Product> getProduct(long productId) {
         return productRepository.findById(productId);
     }
@@ -28,8 +29,7 @@ public class ProductApplicationService implements ProductService {
     }
 
     @Override
-    @Transactional
-    @DistributedLock(key = "'product'.concat(':').concat(#productId)")
+    @CachePut(cacheNames = "products", key = "#productId")
     public Product reduceProduct(long productId, long quantity) {
 
         Product product = productRepository.findById(productId)
@@ -37,6 +37,8 @@ public class ProductApplicationService implements ProductService {
 
         product.reduceStock(quantity);
 
-        return productRepository.save(product);
+        productRepository.save(product);
+
+        return product;
     }
 }

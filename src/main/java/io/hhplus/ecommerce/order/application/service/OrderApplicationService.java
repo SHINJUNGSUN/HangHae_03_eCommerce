@@ -5,6 +5,7 @@ import io.hhplus.ecommerce.order.domain.model.OrderLine;
 import io.hhplus.ecommerce.order.domain.model.OrderStatus;
 import io.hhplus.ecommerce.order.domain.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,7 +53,7 @@ public class OrderApplicationService implements OrderService {
     }
 
     @Override
-    @Transactional
+    @Cacheable(cacheNames = "products", key = "'popularProductsIds'")
     public List<Long> getPopularProducts(LocalDateTime startDateTime, LocalDateTime endDateTime) {
         return orderRepository.findPopularProducts(startDateTime, endDateTime);
     }
