@@ -26,14 +26,6 @@ public class Product {
                 .build();
     }
 
-    public static Product create(String productName, long unitPrice, long stock) {
-        return Product.builder()
-                .productName(productName)
-                .unitPrice(unitPrice)
-                .stock(stock)
-                .build();
-    }
-
     public void reduceStock(long quantity) {
 
         if(quantity <= 0) {

@@ -35,13 +35,4 @@ public class ProductController {
     public CommonApiResponse<List<ProductResponse>> topProducts() {
         return CommonApiResponse.success(productFacade.getPopularProducts());
     }
-
-    @Operation(summary = "상품 생성 API")
-    @PostMapping("/{count}")
-    public CommonApiResponse<Boolean> saveProducts(@PathVariable() long count) {
-
-        productFacade.saveProducts(count);
-
-        return CommonApiResponse.success(true);
-    }
 }

@@ -40,8 +40,4 @@ public class ProductFacade {
                 .map(ProductResponse::from)
                 .toList();
     }
-
-    public void saveProducts(long count) {
-        productService.saveProducts(count);
-    }
 }

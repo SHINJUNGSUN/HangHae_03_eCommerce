@@ -9,5 +9,4 @@ public interface ProductService {
     Optional<Product> getProduct(long productId);
     List<Product> getProducts();
     Product reduceProduct(long productId, long quantity);
-    void saveProducts(long count);
 }
