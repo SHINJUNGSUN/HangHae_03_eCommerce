@@ -1082,19 +1082,17 @@ Redis 분산 락을 사용해 특정 상품의 재고 차감 시 락을 선점�
 </details>
 
 ## `Step13`
-## `Redis`를 활용한 성능 개선
+## 캐시(Cache)를 활용한 성능 개선
 <details>
 <summary>내용 보기</summary>
 
-이커머스 시나리오의 주요 `API`를 분석하고 `Redis`를 활용하여 성능을 개선하고자 한다.
+`캐시(Cache)`는 자주 접근하는 데이터를 메모리에 저장하여 빠르게 제공하는 방식을 말한다.
 
-## `Redis`
-
-그렇다면 `Redis`는 무엇이며, 어떤 기능을 제공할까?
+이커머스 시나리오의 `API`를 분석하고 캐시를 활용하여 성능을 개선하고자 한다.
 
 ## `API` 분석 및 개선
 
-우선, 사용자가 호출하는 빈도가 높고 `Redis`를 통한 성능 개선 효과가 클 것으로 예상되는 `API`를 선정하였다.
+사용자가 호출하는 빈도가 높고 캐시를 통한 성능 개선 효과가 클 것으로 예상되는 `API`를 선정하였다.
 
 ### 1. 상품 목록 조회 API (`GET` /api/products) 
 
@@ -1104,31 +1102,107 @@ Redis 분산 락을 사용해 특정 상품의 재고 차감 시 락을 선점�
   - 여러 사용자가 동시에 요청할 경우 데이터베이스에 부하가 발생할 가능성이 크다.
 
 
-- **문제 상황 테스트**
+- **성능 비교 테스트**
   ```
-  [문제 상황]
+  [시나리오]
   
-  상품 데이터 5,000건을 1,000명의 사용자가 동시에 호출한다.
+  상품 데이터 1,000건을 100명의 사용자가 10회 호출한다.
   ```
-  문제 상황을 가정하고, 부하 테스트를 진행하였다.
+  위 시나리오를 바탕으로, `JMeter`를 활용하여 부하 테스트를 진행하였다.
 
-  ![img.png](docs/step13/img.png)
+  - `Thread Group` 설정  
+    ![img.png](docs/step13/img.png)
+
+  - [기존] 상품 목록 조회 API 
+    ![img.png](docs/step13/img01.png)
+    ```
+    [결과]
+    - 총 요청수: 1,000건
+    - 성공률: 100%
+    - 최대 응답시간: 1,268ms
+    - 최소 응답시간: 28ms
+    - 평균 응답시간: 472ms
+    - TPS(Transaction Per Second): 165.9/sec 
+    ```
+    1,000건의 모든 요청에서 데이터베이스를 직접 조회한 결과로, `평균 응답시간`은 `472ms`, `TPS`는 `165.9/sec`으로 측정되었다.
+  
+  
+  그렇다면 상품 데이터 1,000건을 캐싱한다면 결과는 어떻게 달라지게 될까?
+
+
+- **개선 과정 및 테스트**  
+
+  빠른 데이터 읽기/쓰기 성능을 제공 `Redis`를 활용하여 캐시 서버를 구성하였다.
+  
+  캐시 전략은 데이터를 찾을때 우선 캐시에 저장된 데이터가 있는지 우선적으로 확인하는 `Look Aside(Lazy Loading) 패턴`을 사용하였다.
+  
+  `RedisConfig.java`
+  ```java
+  
+  @Bean
+  public CacheManager cacheManager(RedissonConnectionFactory redissonConnectionFactory) {
+
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.activateDefaultTyping(objectMapper.getPolymorphicTypeValidator(), ObjectMapper.DefaultTyping.NON_FINAL);
+    
+    RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
+        .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+        .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapper)));
+
+    Map<String, RedisCacheConfiguration> redisCacheConfigurations = new HashMap<>();
+
+    return RedisCacheManager.builder(redissonConnectionFactory)
+        .cacheDefaults(redisCacheConfiguration)
+        .withInitialCacheConfigurations(redisCacheConfigurations)
+        .build();
+  }
   ```
-  [결과]
-  - 총 요청수: 1,000건
-  - 성공률: 100%
-  - 최대 응답시간: 13,114ms
-  - 최소 응답시간: 0ms
-  - 평균 응답시간: 7,389ms
-  - TPS(Transaction Per Second): 69.9/sec 
+  `ProductApplicationService.java`
+  ```java
+  @Override
+  @Cacheable(cacheNames = "products", key = "'allProducts'")
+  public Products getProducts() {
+      return Products.from(productRepository.findAll());
+  }
   ```
+  - `Redis`
+  ![img02.png](docs/step13/img02.png)  
+
+  - [변경] 상품 목록 조회 API
+    ![img03.png](docs/step13/img03.png)
+    ```
+    [결과]
+    - 총 요청수: 1,000건
+    - 성공률: 100%
+    - 최대 응답시간: 1,867ms
+    - 최소 응답시간: 7ms
+    - 평균 응답시간: 242ms
+    - TPS(Transaction Per Second): 316.7/sec
+    ```
+    상품 데이터 1,000건을 캐싱한 후 조회한 결과로, `평균 응답시간`은 `242ms`, `TPS`는 `316.7/sec`으로 측정되었다.
+    
+    초기 60건의 요청에서 `Cache Miss`가 발생하여 데이터베이스에서 데이터를 조회하는 현상이 나타났다. 
+    
+    ![img_1.png](docs/step13/img04.png)
+    ```
+    [결과]
+    - 총 요청수: 1,000건
+    - 성공률: 100%
+    - 최대 응답시간: 464ms
+    - 최소 응답시간: 6ms
+    - 평균 응답시간: 127ms
+    - TPS(Transaction Per Second): 438.8/sec
+    ```
+    `Cache Warming`된 상태에서 테스트한 결과로, `평균 응답시간`은 `127ms`, `TPS`는 `438.8/sec`으로 측정되었다.
   
-  테스트 결과를 통해 안정적이지만 평균 응답시간이 7초 이상으로 상당히 오래 걸린 것을 확인할 수 있다.
-  
-- **개선 방안**
-  
+- **결론**
+
+  성능 비교 테스트를 통해 캐시를 적용함으로써 성능이 크게 개선된 것을 확인할 수 있었다.
+
+  `평균 응답 시간`은 캐시 적용 전 `472ms`에서 캐시 적용 후 `127ms`로 약 세 배가량 빨라졌으며, `TPS`는 `438.8/sec`로 기존보다 두 배 이상 증가하였다. 특히, Cache Warming 이후에는 일관된 성능을 제공하며 데이터베이스 부하가 크게 감소한 것이 인상적이었다.
+    
+  그러나, 모든 상품 데이터를 캐싱하는 방식은 부적절하다고 생각한다. 페이징 처리를 통해 데이터를 나누어 조회하는 방식으로도 충분히 개선될 것으로 보인다.
+    
 ### 2. 상위 상품 조회 API (`GET` /api/products/popular)
-
-### 3. 장바구니 목록 조회 API (`GET` /api/carts)
 
 </details>

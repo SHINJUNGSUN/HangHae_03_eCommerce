@@ -70,10 +70,10 @@ public class ProductServiceTest {
         when(productRepository.findAll()).thenReturn(List.of(product));
 
         // Act
-        Products response = productApplicationService.getProducts();
+        List<Product> response = productApplicationService.getProducts();
 
         // When
-        assertThat(response.getProducts())
+        assertThat(response)
                 .hasSize(1)
                 .extracting(i -> tuple(i.getProductId(), i.getProductName(), i.getStock(), i.getUnitPrice()))
                 .containsExactly(
