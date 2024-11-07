@@ -1132,9 +1132,9 @@ Redis 분산 락을 사용해 특정 상품의 재고 차감 시 락을 선점�
 
 - **개선 과정 및 테스트**  
 
-  빠른 데이터 읽기/쓰기 성능을 제공 `Redis`를 활용하여 캐시 서버를 구성하였다.
+  빠른 데이터 읽기/쓰기 성능을 제공하는 `Redis`를 활용하여 캐시 서버를 구성하였다.
   
-  캐시 전략은 데이터를 찾을때 우선 캐시에 저장된 데이터가 있는지 우선적으로 확인하는 `Look Aside(Lazy Loading) 패턴`을 사용하였다.
+  데이터를 찾을때 우선 캐시에 저장된 데이터가 있는지 우선적으로 확인하는 `Look Aside(Lazy Loading) 패턴`을 캐시 전략으로 선택하였다.
   
   `RedisConfig.java`
   ```java
@@ -1149,11 +1149,8 @@ Redis 분산 락을 사용해 특정 상품의 재고 차감 시 락을 선점�
         .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
         .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapper)));
 
-    Map<String, RedisCacheConfiguration> redisCacheConfigurations = new HashMap<>();
-
     return RedisCacheManager.builder(redissonConnectionFactory)
         .cacheDefaults(redisCacheConfiguration)
-        .withInitialCacheConfigurations(redisCacheConfigurations)
         .build();
   }
   ```
@@ -1181,7 +1178,9 @@ Redis 분산 락을 사용해 특정 상품의 재고 차감 시 락을 선점�
     ```
     상품 데이터 1,000건을 캐싱한 후 조회한 결과로, `평균 응답시간`은 `242ms`, `TPS`는 `316.7/sec`으로 측정되었다.
     
-    초기 60건의 요청에서 `Cache Miss`가 발생하여 데이터베이스에서 데이터를 조회하는 현상이 나타났다. 
+    초기 60건의 요청에서 `Cache Miss`가 발생하여 데이터베이스에서 데이터를 조회하는 현상이 나타났다.
+
+    `Cache Warming`된 상태에서도 테스트를 진행하였으며, 결과는 아래와 같다.
     
     ![img_1.png](docs/step13/img04.png)
     ```
@@ -1193,8 +1192,9 @@ Redis 분산 락을 사용해 특정 상품의 재고 차감 시 락을 선점�
     - 평균 응답시간: 127ms
     - TPS(Transaction Per Second): 438.8/sec
     ```
-    `Cache Warming`된 상태에서 테스트한 결과로, `평균 응답시간`은 `127ms`, `TPS`는 `438.8/sec`으로 측정되었다.
+    `평균 응답시간`은 `127ms`, `TPS`는 `438.8/sec`으로 측정되었다.
   
+
 - **결론**
 
   성능 비교 테스트를 통해 캐시를 적용함으로써 성능이 크게 개선된 것을 확인할 수 있었다.
@@ -1204,5 +1204,151 @@ Redis 분산 락을 사용해 특정 상품의 재고 차감 시 락을 선점�
   그러나, 모든 상품 데이터를 캐싱하는 방식은 부적절하다고 생각한다. 페이징 처리를 통해 데이터를 나누어 조회하는 방식으로도 충분히 개선될 것으로 보인다.
     
 ### 2. 상위 상품 조회 API (`GET` /api/products/popular)
+
+- **분석**
+  - 해당 `API`는 지난 3일간의 인기 상품 5개를 조회한다.
+  - 지난 3일간의 주문 데이터를 기반으로 인기 상품 ID를 조회하고, 각 상품 ID에 해당하는 상품 데이터를 조회하여 반환한다.
+  - 상품 및 주문 데이터가 많아질수록 조회 시간이 길어질 가능성이 있다.
+  - 여러 사용자가 동시에 요청할 경우 데이터베이스에 부하가 발생할 가능성이 크다.
+
+
+- **성능 비교 테스트**
+  ```
+  [시나리오]
+  
+  - 상품 데이터 1,000건
+  - 주문 데이터 10,000건
+  
+  위 데이터에 대해 100명의 사용자가 10회 호출한다.
+  ```
+
+  - [기존] 상품 목록 조회 API
+    ![img.png](docs/step13/img05.png)
+    ```
+    [결과]
+    - 총 요청수: 1,000건
+    - 성공률: 100%
+    - 최대 응답시간: 2,204ms
+    - 최소 응답시간: 113ms
+    - 평균 응답시간: 1,338ms
+    - TPS(Transaction Per Second): 70.9/sec
+    ```
+    `평균 응답시간`은 `1,338ms`, `TPS`는 `70.9/sec`으로 측정되었다.
+
+
+- **개선 과정 및 테스트**
+  
+  `OrderService`의 `getPopularProducts`는 주문 데이터를 집계하기 위해 `GROUP BY`, `SUM` 같은 집계 함수를 사용하고 있으며, 이는 데이터베이스의 부하를 발생시킬 가능성이 높다. 
+
+  또한 지난 3일간의 인기 상품을 조회하는 것이므로 모든 요청에 주문 데이터를 집계하는 것은 불필요한 중복 계산이 발생한다.
+
+  이와 같은 문제를 해결하기 위해 결과를 캐싱하여 성능을 개선하고자 한다.
+
+  `RedisConfig.java`
+  ```java
+  @Bean
+  public CacheManager cacheManager(RedissonConnectionFactory redissonConnectionFactory) {
+  
+      ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.activateDefaultTyping(objectMapper.getPolymorphicTypeValidator(), ObjectMapper.DefaultTyping.NON_FINAL);
+
+      RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
+              .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+              .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapper)));
+      
+      Map<String, RedisCacheConfiguration> redisCacheConfigurations = new HashMap<>();
+      redisCacheConfigurations.put("products", redisCacheConfiguration.entryTtl(Duration.ofSeconds(86400)));
+
+      return RedisCacheManager.builder(redissonConnectionFactory)
+              .cacheDefaults(redisCacheConfiguration)
+              .withInitialCacheConfigurations(redisCacheConfigurations)
+              .build();
+  }
+  ```
+  `TTL(Time-To-Live) 설정`: 하루 단위로 데이터가 갱신되므로, 86400(24시간)으로 설정하였다. 
+  
+  `OrderApplicationService.java`
+  ```java
+  @Override
+  @Cacheable(cacheNames = "products", key = "'popularProductsIds'")
+  public List<Long> getPopularProducts(LocalDateTime startDateTime, LocalDateTime endDateTime) {
+      return orderRepository.findPopularProducts(startDateTime, endDateTime);
+  }
+  ```
+  
+  `OrderScheduler.java`
+  ```java
+  @Component
+  @RequiredArgsConstructor
+  public class OrderScheduler {
+  
+      private final OrderService orderService;
+  
+      @Scheduled(cron = "0 0 0 * * *")
+      @CacheEvict(cacheNames = "popularProducts", key = "'popularProductsIds'")
+      public void refreshPopularProductsCached() {
+          LocalDateTime now = LocalDateTime.now();
+          LocalDateTime startDateTime = now.minusDays(3).toLocalDate().atStartOfDay();
+          LocalDateTime endDateTime = now.minusDays(1).toLocalDate().atTime(23, 59, 59);
+  
+          orderService.getPopularProducts(startDateTime, endDateTime);
+      }
+  }
+  ```
+  매일 자정(00시 00분) 주문 집계 데이터에 캐시를 갱신한다.
+
+  `ProductApplicationService.java`
+  ```java
+  @Override
+  @Cacheable(cacheNames = "products", key = "#productId")
+  public Optional<Product> getProduct(long productId) {
+      return productRepository.findById(productId);
+  }
+
+  @Override
+  @CachePut(cacheNames = "products", key = "#productId")
+  public Product reduceProduct(long productId, long quantity) {
+
+      Product product = productRepository.findById(productId)
+              .orElseThrow(() -> new IllegalStateException(ExceptionMessage.PRODUCT_NOT_FOUND.getMessage()));
+
+      product.reduceStock(quantity);
+
+      productRepository.save(product);
+
+      return product;
+  }
+  ```
+  개별 상품에 대한 데이터를 캐싱하며, 개별 상품 재고가 감소할 경우 캐시를 갱신한다.
+  
+  - `Redis`
+  ![img_1.png](docs/step13/img06.png)
+  
+  - [변경] 상위 상품 조회 API
+    ![img_2.png](docs/step13/img07.png)
+    ```
+    [결과]
+    - 총 요청수: 1,000건
+    - 성공률: 100%
+    - 최대 응답시간: 105ms
+    - 최소 응답시간: 13ms
+    - 평균 응답시간: 45ms
+    - TPS(Transaction Per Second): 750.8/sec
+    ```
+    `평균 응답시간`은 `45msms`, `TPS`는 `750.8/sec`으로 측정되었다.
+
+
+- **결론**
+
+이번 성능 개선을 통해 `상위 상품 조회 API`의 성능을 크게 개선할 수 있었다.
+
+최초, 인기 상품 조회를 위해 지난 3일 간의 주문 데이터를 집계하는 데 시간이 많이 소요되었고, 특히 동시에 여러 사용자가 요청할 경우 데이터베이스에 큰 부하가 발생할 가능성이 있었다.
+
+이 문제를 해결하기 위해 `Redis`를 활용한 캐싱을 도입하고, 캐시 `TTL(Time-To-Live)`을 하루 단위로 설정하여 주기적으로 데이터를 갱신하는 방식으로 성능을 개선하였다.
+
+- `평균 응답 시간`: 기존 `1,338ms`에서 `45ms`로 97% 개선
+- `TPS(Transaction Per Second)`: `70.9/sec`에서 `750.8/sec`으로 10배 이상 증가
+
+이번 성능 개선은 캐시 전략을 잘 활용한 사례로, 데이터 조회 성능을 획기적으로 개선할 수 있다는 것을 보여주었다.
 
 </details>
