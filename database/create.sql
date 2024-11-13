@@ -30,8 +30,7 @@ CREATE TABLE `ecommerce`.`point_history`
     `transaction_type`  VARCHAR(20) NOT NULL    COMMENT '포인트 변동 유형',
     `created_at`    DATETIME    NOT NULL    COMMENT '포인트 사용 내역 생성 일시',
     `updated_at`    DATETIME    NOT NULL    COMMENT '포인트 사용 내역 갱신 일시',
-    PRIMARY KEY (`id`),
-    INDEX `idx_user_seq` (`user_seq`)
+    PRIMARY KEY (`id`)
 );
 
 DROP TABLE IF EXISTS `ecommerce`.`product`;
@@ -55,9 +54,7 @@ CREATE TABLE `ecommerce`.`cart`
     `quantity`  BIGINT NOT NULL    COMMENT '장바구니 상품 수량',
     `created_at`    DATETIME    NOT NULL    COMMENT '장바구니 상품 생성 일시',
     `updated_at`    DATETIME    NOT NULL    COMMENT '장바구니 상품 갱신 일시',
-    PRIMARY KEY (`id`),
-    INDEX `idx_user_seq` (`user_seq`),
-    INDEX `idx_product_id` (`product_id`)
+    PRIMARY KEY (`id`)
 );
 
 DROP TABLE IF EXISTS `ecommerce`.`orders`;
@@ -68,8 +65,7 @@ CREATE TABLE `ecommerce`.`orders`
     `order_status`  VARCHAR(20)    NOT NULL    COMMENT '주문 상태',
     `created_at`    DATETIME    NOT NULL    COMMENT '주문 생성 일시',
     `updated_at`    DATETIME    NOT NULL    COMMENT '주문 갱신 일시',
-    PRIMARY KEY (`id`),
-    INDEX `idx_user_seq` (`user_seq`)
+    PRIMARY KEY (`id`)
 );
 
 DROP TABLE IF EXISTS `ecommerce`.`order_line`;
@@ -83,9 +79,7 @@ CREATE TABLE `ecommerce`.`order_line`
     `quantity`  BIGINT NOT NULL    COMMENT '주문 상품 수량',
     `created_at`    DATETIME    NOT NULL    COMMENT '주문 상품 생성 일시',
     `updated_at`    DATETIME    NOT NULL    COMMENT '주문 상품 갱신 일시',
-    PRIMARY KEY (`id`),
-    INDEX `idx_order_id` (`order_id`),
-    INDEX `idx_product_id` (`product_id`)
+    PRIMARY KEY (`id`)
 );
 
 DROP TABLE IF EXISTS `ecommerce`.`payment`;
@@ -98,7 +92,5 @@ CREATE TABLE `ecommerce`.`payment`
     `payment_status`  VARCHAR(20)    NOT NULL    COMMENT '결제 상태',
     `created_at`    DATETIME    NOT NULL    COMMENT '결제 생성 일시',
     `updated_at`    DATETIME    NOT NULL    COMMENT '결제 갱신 일시',
-    PRIMARY KEY (`id`),
-    INDEX `idx_user_seq` (`user_seq`),
-    INDEX `idx_order_id` (`order_id`)
+    PRIMARY KEY (`id`)
 );
