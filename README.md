@@ -1352,3 +1352,337 @@ Redis 분산 락을 사용해 특정 상품의 재고 차감 시 락을 선점�
 이번 성능 개선은 캐시 전략을 잘 활용한 사례로, 데이터 조회 성능을 획기적으로 개선할 수 있다는 것을 보여주었다.
 
 </details>
+
+## `Step15`
+## 인덱스(Index)를 활용한 데이터베이스 성능 최적화
+<details>
+<summary>요구사항 보기</summary>
+
+`인덱스(Index)`는 **데이터베이스 테이블의 조회 속도를 향상시키기 위한 자료 구조**이다.
+
+이커머스 시나리오의 **주요 조회 쿼리를 분석하고 인덱스를 활용하여 데이터베이스 성능을 최적화**하고자 한다.
+
+### 주요 조회 쿼리
+
+`PK(Primary Key)`로 조회하는 쿼리는 이미 `인덱스(Index)`가 적용되어 있다고 판단하여 제외하였다.
+
+**1. 장바구니 조회**
+
+`장바구니 테이블`
+```sql
+CREATE TABLE `ecommerce`.`cart`
+(
+  `id`    BIGINT  NOT NULL    AUTO_INCREMENT  COMMENT '장바구니 상품 고유 식별자',
+  `user_seq`   BIGINT  NOT NULL    COMMENT '사용자 고유 식별자',
+  `product_id`   BIGINT  NOT NULL    COMMENT '상품 고유 식별자',
+  `quantity`  BIGINT NOT NULL    COMMENT '장바구니 상품 수량',
+  `created_at`    DATETIME    NOT NULL    COMMENT '장바구니 상품 생성 일시',
+  `updated_at`    DATETIME    NOT NULL    COMMENT '장바구니 상품 갱신 일시',
+  PRIMARY KEY (`id`)
+);
+```
+
+`장바구니 조회 쿼리`: 특정 사용자의 장바구니 목록을 조회한다.
+```sql
+SELECT * FROM cart WHERE user_seq = ?
+```
+
+위 조회 쿼리에 대해 장바구니 데이터 1,000,000건을 생성한 후 `인덱스(Index)` 생성 전과 후를 비교하였다.
+
+[BEFORE]
+- INDEX
+  ```sql
+  SHOW INDEX FROM cart;
+  ```
+  ![img.png](docs/step15/img.png)
+- EXPLAIN
+  ![img_1.png](docs/step15/img_1.png)
+  ```
+  [실행 계획]
+  - type: ALL
+  - key: -
+  - rows: 996,586 
+  - filtered: 10 
+  - extra: using where
+  ```
+- EXPLAIN ANALYZE
+  ```
+  -> Filter: (cart.user_seq = 500)  (cost=100596.10 rows=99659) (actual time=300.922..606.182 rows=1000 loops=1)
+  -> Table scan on cart  (cost=100596.10 rows=996586) (actual time=6.593..564.197 rows=1000000 loops=1)
+  ```
+- EXECUTE
+  ```
+  select * from cart where user_seq = 500
+  1,000 rows retrieved starting from 1 in 486 ms (execution: 183 ms, fetching: 303 ms)
+  ```
+  
+[AFTER]
+
+`user_seq`값을 기준으로 데이터를 조회하기 때문에, 해당 컬럼에 `인덱스(Index)`를 추가하였다. 
+
+```sql
+CREATE INDEX idx_user_seq ON `ecommerce`.`cart` (`user_seq`);
+```
+
+- INDEX
+  ```sql
+  SHOW INDEX FROM cart;
+  ```
+  ![img_3.png](docs/step15/img_3.png)
+- EXPLAIN
+  ![img_4.png](docs/step15/img_4.png)
+  ```
+  [실행 계획]
+  - type: ref
+  - key: idx_user_seq
+  - rows: 1000
+  - filtered: 100
+  - extra: -
+  ```
+- EXPLAIN ANALYZE
+  ```
+  -> Index lookup on cart using idx_user_seq (user_seq=500)  (cost=350.00 rows=1000) (actual time=9.130..13.451 rows=1000 loops=1)
+  ```
+- EXECUTE
+  ```
+  select * from cart where user_seq = 500
+  1,000 rows retrieved starting from 1 in 259 ms (execution: 8 ms, fetching: 251 ms)
+  ```
+[결과 비교 및 분석]
+  1. 쿼리 실행 계획 비교
+     - [BEFORE]: `type`이 `ALL`이고 `key`가 `null`로 `전체 테이블 스캔`이 발생한 것을 확인할 수 있다.   
+     - [AFTER]: `type`이 `ref`이고 `key`가 새로 생성한 `idx_user_seq`로 `인덱스(Index)`를 통한 조회를 수행되었음을 확인할 수 있다.
+  2. `EXPLAIN ANALYZE` 비교
+     - [BEFORE]: `테이블 스캔(Table scan)`이 발생하였으며 실행 시간이 `300ms`에서 `606ms`로 측정되었다.
+     - [AFTER]: `idx_user_seq`를 활용한 `인덱스 검색(Index Lookup)`으로 실행 시간이 `9ms`에서 `13ms`로 측정되었다.
+  3. 실제 쿼리 실행 시간 비교
+     - [BEFORE]: `183ms` 소요
+     - [AFTER]: `8ms` 소요
+  4. 결론
+     - `장바구니 테이블`에 `인덱스(Index)`를 추가함으로써 전체 테이블 스캔이 발생하지 않도록 최적화가 이루어졌고 쿼리의 실행 성능이 비약적으로 개선되었다.
+
+**2. 상위 주문 상품 집계**
+
+`주문 테이블`
+```sql
+CREATE TABLE `ecommerce`.`orders`
+(
+  `id`    BIGINT  NOT NULL    AUTO_INCREMENT  COMMENT '주문 고유 식별자',
+  `user_seq`   BIGINT  NOT NULL    COMMENT '사용자 고유 식별자',
+  `order_status`  VARCHAR(20)    NOT NULL    COMMENT '주문 상태',
+  `created_at`    DATETIME    NOT NULL    COMMENT '주문 생성 일시',
+  `updated_at`    DATETIME    NOT NULL    COMMENT '주문 갱신 일시',
+  PRIMARY KEY (`id`)
+);
+```
+
+`주문 상품 테이블`
+```sql
+CREATE TABLE `ecommerce`.`order_line`
+(
+  `id`    BIGINT  NOT NULL    AUTO_INCREMENT  COMMENT '주문 상품 고유 식별자',
+  `order_id`   BIGINT  NOT NULL   COMMENT '주문 고유 식별자',
+  `product_id`   BIGINT  NOT NULL    COMMENT '상품 고유 식별자',
+  `product_name`   VARCHAR(50)  NOT NULL    COMMENT '주문 상품명',
+  `unit_price`    BIGINT  NOT NULL    COMMENT '주문 상품 단가',
+  `quantity`  BIGINT NOT NULL    COMMENT '주문 상품 수량',
+  `created_at`    DATETIME    NOT NULL    COMMENT '주문 상품 생성 일시',
+  `updated_at`    DATETIME    NOT NULL    COMMENT '주문 상품 갱신 일시',
+  PRIMARY KEY (`id`)
+);
+```
+
+`상위 주문 상품 집계 쿼리`: 주문이 많은 상위 5개 상품 ID를 조회한다.
+```sql
+SELECT ol.product_id
+FROM order_line ol
+INNER JOIN orders o ON o.id = ol.order_id 
+WHERE o.order_status != 'CANCELED'
+AND o.created_at BETWEEN ? and ?
+GROUP BY ol.product_id
+ORDER BY sum(ol.quantity) DESC
+LIMIT 5;
+```
+
+위 조회 쿼리에 대해 주문 데이터 100,000건과 해당 주문 데이터에 대한 주문 상품 데이터 약 700,000건을 생성한 후 `인덱스(Index)` 생성 전과 후를 비교하였다.
+
+[BEFORE]
+- INDEX
+  ```sql
+  SHOW INDEX FROM orders;
+  ```
+  ![img_5.png](docs/step15/img_5.png)
+  ```sql
+  SHOW INDEX FROM order_line;
+  ```
+  ![img_6.png](docs/step15/img_6.png)
+- EXPLAIN
+  ![img_7.png](docs/step15/img_7.png)
+  ```
+  [실행 계획]
+  1. order_line
+    - type: ALL
+    - key: -
+    - rows: 745,494
+    - filtered: 100
+    - extra: using temporary; using filesort;
+  2. orders
+    - type: eq_ref
+    - key: PRIMARY
+    - rows: 1
+    - filtered: 10
+    - extra: using where;
+  ```
+- EXPLAIN ANALYZE
+  ```
+  -> Limit: 5 row(s)  (actual time=1975.417..1975.418 rows=5 loops=1)
+  -> Sort: `sum(ol.quantity)` DESC, limit input to 5 row(s) per chunk  (actual time=1975.416..1975.416 rows=5 loops=1)
+  -> Table scan on <temporary>  (actual time=0.001..3.572 rows=99247 loops=1)
+  -> Aggregate using temporary table  (actual time=1953.181..1962.915 rows=99247 loops=1)
+  -> Nested loop inner join  (cost=336551.48 rows=74542) (actual time=4.199..1534.947 rows=499105 loops=1)
+  -> Table scan on ol  (cost=75628.58 rows=745494) (actual time=2.663..661.103 rows=749119 loops=1)
+  -> Filter: ((o.order_status <> 'CANCELED') and (o.created_at between '2024-11-11 00:00:00' and '2024-11-13 23:59:59'))  (cost=0.25 rows=0.1) (actual time=0.001..0.001 rows=1 loops=749119)
+  -> Single-row index lookup on o using PRIMARY (id=ol.order_id)  (cost=0.25 rows=1) (actual time=0.000..0.000 rows=1 loops=749119)
+  ```
+- EXECUTE
+  ```
+  SELECT ol.product_id
+  FROM order_line ol
+  INNER JOIN orders o ON o.id = ol.order_id
+  WHERE o.order_status != 'CANCELED'
+  AND o.created_at BETWEEN '2024-11-11 00:00:00' and '2024-11-13 23:59:59'
+  GROUP BY ol.product_id
+  ORDER BY sum(ol.quantity) DESC
+  LIMIT 5
+  5 rows retrieved starting from 1 in 1 s 276 ms (execution: 1 s 262 ms, fetching: 14 ms)
+  ```
+
+[AFTER]
+
+해당 쿼리는 `orders`테이블의 `order_status`컬럼과 `created_at`컬럼을 조건으로 필터링하고, `order_line`테이블의 `product_id`컬럼을 그룹화하여 수량을 기준으로 내림차순 정렬한다.
+
+먼저, 필터링을 기준으로 개별 `인덱스(Index)` 생성 후 결과를 확인해보았다.
+
+- INDEX
+  
+  `orders`
+  ```sql
+  CREATE INDEX idx_order_status ON `ecommerce`.`orders` (`order_status`);
+  CREATE INDEX idx_created_at ON `ecommerce`.`orders` (`created_at`);
+  ```
+  ![img_8.png](docs/step15/img_8.png)
+  
+  `order_line`
+  ```sql
+  CREATE INDEX idx_order_id_ ON `ecommerce`.`order_line` (`order_id`);
+  CREATE INDEX idx_product_id ON `ecommerce`.`order_line` (`product_id`);
+  ```
+  ![img_9.png](docs/step15/img_9.png)
+- EXPLAIN
+  ![img_10.png](docs/step15/img_10.png)
+  ```
+  [실행 계획]
+  1. orders
+  - type: ALL
+  - key: -
+  - rows: 99,951
+  - filtered: 25
+  - extra: using where; using temporary; using filesort;
+  2. order_line
+  - type: ref
+  - key: idx_order_id
+  - rows: 11
+  - filtered: 100
+  - extra: -
+  ```
+- EXPLAIN ANALYZE
+  ```
+  -> Limit: 5 row(s)  (actual time=5582.162..5582.162 rows=5 loops=1)
+  -> Sort: `sum(ol.quantity)` DESC, limit input to 5 row(s) per chunk  (actual time=5582.160..5582.160 rows=5 loops=1)
+  -> Table scan on <temporary>  (actual time=0.001..4.026 rows=99247 loops=1)
+  -> Aggregate using temporary table  (actual time=5555.642..5565.935 rows=99247 loops=1)
+  -> Nested loop inner join  (cost=170745.34 rows=294732) (actual time=16.105..5096.183 rows=499105 loops=1)
+  -> Filter: ((o.order_status <> 'CANCELED') and (o.created_at between '2024-11-11 00:00:00' and '2024-11-13 23:59:59'))  (cost=10099.35 rows=24988) (actual time=8.893..165.161 rows=66642 loops=1)
+  -> Table scan on o  (cost=10099.35 rows=99951) (actual time=8.261..86.275 rows=100000 loops=1)
+  -> Index lookup on ol using idx_order_id (order_id=o.id)  (cost=5.25 rows=12) (actual time=0.061..0.073 rows=7 loops=66642)
+  ```
+- EXECUTE
+  ```
+  SELECT ol.product_id
+  FROM order_line ol
+  INNER JOIN orders o ON o.id = ol.order_id
+  WHERE o.order_status != 'CANCELED'
+  AND o.created_at BETWEEN '2024-11-11 00:00:00' and '2024-11-13 23:59:59'
+  GROUP BY ol.product_id
+  ORDER BY sum(ol.quantity) DESC
+  LIMIT 5
+  5 rows retrieved starting from 1 in 2 s 265 ms (execution: 2 s 236 ms, fetching: 29 ms)
+  ```
+
+다음으로, `복합 인덱스`를 생성한 후 결과를 확인해보았다.
+
+- INDEX
+
+  `orders`
+  ```sql
+  CREATE INDEX idx_created_at_order_status ON `ecommerce`.`orders` (`created_at`, `order_status`);
+  ```
+  ![img_11.png](docs/step15/img_11.png)
+  `order_line`
+  ```sql
+  CREATE INDEX idx_product_id_order_id ON `ecommerce`.`order_line` (`product_id`, `order_id`);
+  ```
+  ![img_12.png](docs/step15/img_12.png)
+- EXPLAIN
+  ![img_13.png](docs/step15/img_13.png)
+  ```
+  [실행 계획]
+  1. order_line
+  - type: ALL
+  - key: -
+  - rows: 745,494
+  - filtered: 100
+  - extra: using temporary; using filesort;
+  2. orders
+  - type: eq_ref
+  - key: PRIMARY
+  - rows: 1
+  - filtered: 45
+  - extra: using where;
+  ```
+- EXPLAIN ANALIZE
+  ```
+  -> Limit: 5 row(s)  (actual time=1778.202..1778.202 rows=5 loops=1)
+  -> Sort: `sum(ol.quantity)` DESC, limit input to 5 row(s) per chunk  (actual time=1778.201..1778.201 rows=5 loops=1)
+  -> Table scan on <temporary>  (actual time=0.001..3.889 rows=99247 loops=1)
+  -> Aggregate using temporary table  (actual time=1753.800..1763.988 rows=99247 loops=1)
+  -> Nested loop inner join  (cost=336441.80 rows=335469) (actual time=0.106..1379.312 rows=499105 loops=1)
+  -> Table scan on ol  (cost=75518.90 rows=745494) (actual time=0.063..234.255 rows=749119 loops=1)
+  -> Filter: ((o.order_status <> 'CANCELED') and (o.created_at between '2024-11-11 00:00:00' and '2024-11-13 23:59:59'))  (cost=0.25 rows=0.4) (actual time=0.001..0.001 rows=1 loops=749119)
+  -> Single-row index lookup on o using PRIMARY (id=ol.order_id)  (cost=0.25 rows=1) (actual time=0.001..0.001 rows=1 loops=749119)
+  ```
+- EXECUTE
+  ```
+  SELECT ol.product_id
+  FROM order_line ol
+  INNER JOIN orders o ON o.id = ol.order_id
+  WHERE o.order_status != 'CANCELED'
+  AND o.created_at BETWEEN '2024-11-11 00:00:00' and '2024-11-13 23:59:59'
+  GROUP BY ol.product_id
+  ORDER BY sum(ol.quantity) DESC
+  LIMIT 5
+  5 rows retrieved starting from 1 in 1 s 460 ms (execution: 1 s 445 ms, fetching: 15 ms)
+  ```
+
+[결과 비교 및 분석]
+1. 단일 컬럼 인덱스 생성 후 성능 변화
+   - `order_line`의 인덱스 `idx_order_id`, `idx_product_id`와 `orders`의 인덱스 `idx_order_status`, `idx_created_at`를 생성한 후, 실행 시간이 2초대로 오히려 증가하였다.
+   - `orders`에서 `order_status`와 `created_at` 조건이 분리된 단일 컬럼 인덱스 방식은 각 조건별 필터링에는 효과적일 수 있다고 생각하지만 기대한 결과가 나오지 않았다.
+2. 복합 인덱스 생성 후 성능 변화
+   - `orders`에 `(created_at, order_status)`, `order_line`에 `(product_id, order_id)` 복합 인덱스를 생헝한 후, 실행 계획과 실행 시간이 이전보다 더 개선된 것을 확인할 수 있다.
+   - `EXPLAIN ANALYZE`결과에서 `order_line`에 대한 테이블 스캔이 여전히 존재하지만, 복합 인덱스를 사용하여 조건 필터링과 정렬을 모두 인덱스에서 처리하면서 성능이 다소 향상된 것으로 생각된다.
+3. 결론
+   - 복합 인덱스를 추가한 후 쿼리 성능이 개선되었으나, 최적화는 여전히 필요하다.
+   - `order_line`에 대한 테이블 스캔을 줄이기 위해 더 나은 인덱스 전략을 찾고, 쿼리 구조를 변경해야 한다.
+
+ </details>

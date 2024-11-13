@@ -1,29 +1,6 @@
 version: '3.8'
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: mysql_container
-    environment:
-      MYSQL_USER: ecommerce
-      MYSQL_DATABASE: ecommerce
-      MYSQL_PASSWORD: 1q2w3e4r!!
-      MYSQL_ROOT_PASSWORD: 1q2w3e4r!!
-    ports:
-      - '3306:3306'
-    volumes:
-      - mysql_data:/var/lib/mysql
-    restart: always
-  node_exporter:
-    image: prom/node-exporter:latest
-    container_name: node_exporter
-    ports:
-      - '9100:9100'
-    command:
-      - '--collector.cpu'
-      - '--collector.meminfo'
-      - '--collector.diskstats'
-    restart: always
   redis:
     image: redis:latest
     container_name: redis_container
