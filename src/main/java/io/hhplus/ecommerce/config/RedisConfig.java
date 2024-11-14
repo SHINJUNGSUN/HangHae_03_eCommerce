@@ -1,7 +1,6 @@
 package io.hhplus.ecommerce.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
@@ -44,7 +43,7 @@ public class RedisConfig {
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapper)));
 
         Map<String, RedisCacheConfiguration> redisCacheConfigurations = new HashMap<>();
-        redisCacheConfigurations.put("products", redisCacheConfiguration.entryTtl(Duration.ofSeconds(86400)));
+        redisCacheConfigurations.put("products", redisCacheConfiguration.entryTtl(Duration.ofSeconds(600)));
 
         return RedisCacheManager.builder(redissonConnectionFactory)
                 .cacheDefaults(redisCacheConfiguration)

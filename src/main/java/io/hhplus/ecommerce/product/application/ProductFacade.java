@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 @Slf4j
@@ -29,9 +28,8 @@ public class ProductFacade {
     }
 
     public List<ProductResponse> getPopularProducts() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime startDateTime = now.minusDays(3).toLocalDate().atStartOfDay();
-        LocalDateTime endDateTime = now.minusDays(1).toLocalDate().atTime(LocalTime.MAX);
+        LocalDateTime endDateTime = LocalDateTime.now();
+        LocalDateTime startDateTime = endDateTime.minusDays(3);
 
         return orderService.getPopularProducts(startDateTime, endDateTime)
                 .stream()
