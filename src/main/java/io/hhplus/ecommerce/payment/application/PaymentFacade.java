@@ -8,8 +8,11 @@ import io.hhplus.ecommerce.order.domain.model.OrderStatus;
 import io.hhplus.ecommerce.payment.application.dto.PaymentRequest;
 import io.hhplus.ecommerce.payment.application.dto.PaymentResponse;
 import io.hhplus.ecommerce.payment.application.service.PaymentService;
+import io.hhplus.ecommerce.payment.domain.event.PaymentCompleteEvent;
+import io.hhplus.ecommerce.payment.domain.model.Payment;
 import io.hhplus.ecommerce.user.application.service.UserPointService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,10 +20,15 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PaymentFacade {
 
-    private final OrderService orderService;
-    private final UserPointService userPointService;
-    private final PaymentService paymentService;
+    private final ApplicationEventPublisher eventPublisher;
+
     private final SlackMessageUtil slackMessageUtil;
+
+    private final OrderService orderService;
+
+    private final UserPointService userPointService;
+
+    private final PaymentService paymentService;
 
     @Transactional
     public PaymentResponse payment(long userSeq, PaymentRequest request) {
@@ -32,8 +40,10 @@ public class PaymentFacade {
 
         orderService.updateOrderStatus(OrderStatus.COMPLETED, order);
 
-        slackMessageUtil.sendMessage("성공");
+        Payment payment = paymentService.payment(userSeq, order);
 
-        return PaymentResponse.from(paymentService.payment(userSeq, order));
+        eventPublisher.publishEvent(PaymentCompleteEvent.of(userSeq, order));
+
+        return PaymentResponse.from(payment);
     }
 }
