@@ -2,7 +2,6 @@ package io.hhplus.ecommerce.product;
 
 import io.hhplus.ecommerce.product.application.service.ProductApplicationService;
 import io.hhplus.ecommerce.product.domain.model.Product;
-import io.hhplus.ecommerce.product.domain.model.Products;
 import io.hhplus.ecommerce.product.domain.repository.ProductRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

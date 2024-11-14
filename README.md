@@ -1356,7 +1356,7 @@ Redis 분산 락을 사용해 특정 상품의 재고 차감 시 락을 선점�
 ## `Step15`
 ## 인덱스(Index)를 활용한 데이터베이스 성능 최적화
 <details>
-<summary>요구사항 보기</summary>
+<summary>내용 보기</summary>
 
 `인덱스(Index)`는 **데이터베이스 테이블의 조회 속도를 향상시키기 위한 자료 구조**이다.
 
@@ -1686,3 +1686,189 @@ LIMIT 5;
    - `order_line`에 대한 테이블 스캔을 줄이기 위해 더 나은 인덱스 전략을 찾고, 쿼리 구조를 변경해야 한다.
 
  </details>
+
+## `Step16`
+## 서비스 확장과 트랜잭션
+<details>
+<summary>내용 보기</summary>
+
+`Spring`에서는 `@Transactional` 어노테이션을 사용하여 선언적 트랜잭션을 통해 트랜잭션을 관리한다.
+
+성능을 최적화하기 위해서는 비즈니스 로직을 분석하여 트랜잭션을 적절히 분할하고, 필요한 경우 트랜잭션의 전파 수준을 조정해야 한다.
+
+## 기존 트랜잭션
+
+기존 트랜잭션은 아래와 같이 `Facade`에 `@Transactional`을 선언하였다.
+
+```java
+@Transactional
+public PaymentResponse payment(long userSeq, PaymentRequest request) {
+
+    Order order = orderService.getOrder(request.orderId(), OrderStatus.PENDING)
+            .orElseThrow(() -> new IllegalStateException(ExceptionMessage.ORDER_NOT_FOUND.getMessage()));
+
+    userPointService.usePoint(userSeq, order.totalPrice());
+
+    orderService.updateOrderStatus(OrderStatus.COMPLETED, order);
+
+    Payment payment = paymentService.payment(userSeq, order);
+
+    return PaymentResponse.from(payment);
+}
+```
+
+이러한 트랜잭션 범위는 외부 시스템과의 통신이 필요한 경우 문제가 발생할 수 있다.
+
+예를 들어, 외부 데이터 플랫폼으로 주문 데이터를 전달하는 상황을 가정해보자!
+
+외부 데이터 플랫폼으로 주문 데이터를 전달하는 상황을 `Slack`으로 메시지를 보내는 로직으로 대체하여 아래와 같이 추가하였다.
+
+```java
+
+private final SlackMessageUtil slackMessageUtil;
+
+@Transactional
+public PaymentResponse payment(long userSeq, PaymentRequest request) {
+
+    Order order = orderService.getOrder(request.orderId(), OrderStatus.PENDING)
+            .orElseThrow(() -> new IllegalStateException(ExceptionMessage.ORDER_NOT_FOUND.getMessage()));
+
+    userPointService.usePoint(userSeq, order.totalPrice());
+
+    orderService.updateOrderStatus(OrderStatus.COMPLETED, order);
+
+    Payment payment = paymentService.payment(userSeq, order);
+
+    String message = String.format("사용자(UserSeq: %d) 결제 성공!", event.getUserSeq());
+    slackMessageUtil.sendMessage(message);
+
+    return PaymentResponse.from(payment);
+}
+```
+
+만약 `Slack`으로 메시지를 보내는 로직에 예외가 발생하면 어떻게 될까?
+
+결제 로직은 정상적으로 처리되었으나, `Slack`으로 메시지를 보내는 로직의 예외 발생으로 결제 로직까지 롤백하는 상황이 발생할 것이다.
+
+아래 테스트 코드로 확인해보자.
+
+```java
+@Test
+@DisplayName("결제 트랜잭션 테스트: 데이터 플랫폼 전달 로직에서 오류 발생한 경우")
+void payment_transaction() {
+  // Given
+  long userSeq = user.getUserSeq();
+  long orderId = order.getOrderId();
+  long amount = 200000L;
+
+  userFacade.chargePoint(userSeq, new UserPointRequest(amount));
+
+  doThrow(new IllegalStateException()).when(slackMessageUtil).sendMessage(anyString());
+
+  // When
+  paymentFacade.payment(userSeq, new PaymentRequest(orderId));
+
+  UserPointResponse response = userFacade.getPoint(userSeq);
+
+  // Then
+  assertEquals(amount - order.totalPrice(), response.point());
+}
+```
+![img.png](docs/step16/img.png)
+
+그렇다면 이러한 문제를 어떻게 해결해야 할까?
+
+바로 이벤트를 통한 `관심사 분리`를 통해 해결할 수 있다.
+
+우선, 결제 성공에 대한 이벤트를 정의한다.
+
+```java
+@Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class PaymentCompleteEvent {
+    private Long userSeq;
+    private Order order;
+
+    public static PaymentCompleteEvent of(Long userSeq, Order order) {
+        return PaymentCompleteEvent.builder()
+                .userSeq(userSeq)
+                .order(order)
+                .build();
+    }
+}
+```
+
+그리고 `ApplicationEventPublisher`를 통해 결제가 완료된 경우 이벤트를 발행한다. 
+
+```java
+
+private final ApplicationEventPublisher eventPublisher;
+
+@Transactional
+public PaymentResponse payment(long userSeq, PaymentRequest request) {
+
+  Order order = orderService.getOrder(request.orderId(), OrderStatus.PENDING)
+          .orElseThrow(() -> new IllegalStateException(ExceptionMessage.ORDER_NOT_FOUND.getMessage()));
+
+  userPointService.usePoint(userSeq, order.totalPrice());
+
+  orderService.updateOrderStatus(OrderStatus.COMPLETED, order);
+
+  Payment payment = paymentService.payment(userSeq, order);
+
+  eventPublisher.publishEvent(PaymentCompleteEvent.of(userSeq, order));
+
+  return PaymentResponse.from(payment);
+}
+```
+
+마지막으로, 이벤트를 처리할 리스너를 정의한다.
+
+```java
+@Component
+@RequiredArgsConstructor
+public class PaymentEventHandler {
+
+    private final SlackMessageUtil slackMessageUtil;
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void paymentCompleteEventHandler(PaymentCompleteEvent event) {
+        String message = String.format("사용자(UserSeq: %d) 결제 성공!", event.getUserSeq());
+        slackMessageUtil.sendMessage(message);
+    }
+}
+```
+
+수정한 후 테스트 결과는 어떨까?
+
+![img_1.png](docs/step16/img01.png)
+
+에러는 발생하였지만, 결제는 정상적으로 처리된 것을 확인할 수 있다.
+
+여기서 주목해야 할 부분은 바로 `관심사 분리`이다.
+
+기존 트랜젝션 관리를 이와 같은 서비스 확장 과정에서 어떻게 최적화할 수 있을까?
+
+## 분산 트랜잭션
+
+단일 서비스 내에서 모든 기능을 처리할 수 있었지만, 비즈니스가 성장하고 다양한 요구사항이 발생하면 하나의 서비스에 모든 기능을 모아두는 것은 관리와 확장성에서 한계가 있다.
+
+이때, `관심사 분리`가 중요하다. 각 도메인과 기능을 독립적으로 관리하고, 변경이 필요할 때 서로 영향을 최소화하며 유연하게 대응할 수 있다.
+
+예를 들어, 결제 서비스와 주문 서비스가 각자의 역할을 명확히 하고, 각 서비스의 트랜잭션 범위를 별도로 관리해야 한다. 
+
+이렇게 분리된 서비스들은 각자의 트랜잭션 범위와 책임을 명확히 하여, 시스템이 확장될수록 유지보수와 변경이 용이해질 것으로 생각된다.
+
+## 결론 및 설계 방향
+
+서비스 분리와 관련된 트랜잭션 관리는 시스템이 확장될수록 더욱 중요한 문제가 된다.
+
+`MSA(Microservices Architecture)`를 채택하여 도메인을 분리하고, `Kafka`를 활용한 이벤트 기반 아키텍처를 도입하고자 한다.
+
+이와 같은 방법은 이커머스 시나리오에서 비즈니스 로직을 독립적이고 확장성을 보장할 수 있다고 생각한다.
+
+그러나 서로 통신하면서 발생하는 데이터 일관성 문제와 트랜잭션 관리 문제를 해결하기 위해 `SAGA 패턴`를 고려해야 하며, 보상 트랜잭션과 같은 방법을 통해 전체 시스템의 일관성을 유지해야 한다.
+
+</details>

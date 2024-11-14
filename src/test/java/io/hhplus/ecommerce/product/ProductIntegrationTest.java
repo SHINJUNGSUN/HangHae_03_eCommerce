@@ -74,9 +74,14 @@ public class ProductIntegrationTest {
                         .userPoint(UserPoint.of(0L))
                         .build());
 
-        products.add(productRepository.save(Product.builder().productName("Laptop").unitPrice(1500000L).stock(10L).build()));
-        products.add(productRepository.save(Product.builder().productName("Smartphone").unitPrice(800000L).stock(20L).build()));
-        products.add(productRepository.save(Product.builder().productName("Headphones").unitPrice(150000L).stock(50L).build()));
+        products = productRepository.findAll();
+
+        if(products.isEmpty()) {
+            productRepository.save(Product.builder().productName("Laptop").unitPrice(1500000L).stock(10L).build());
+            productRepository.save(Product.builder().productName("Smartphone").unitPrice(800000L).stock(20L).build());
+            productRepository.save(Product.builder().productName("Headphones").unitPrice(150000L).stock(50L).build());
+            products = productRepository.findAll();
+        }
 
         order = orderRepository.save(Order.create(user.getUserSeq()));
 
@@ -116,7 +121,11 @@ public class ProductIntegrationTest {
         // Then
         assertThat(response)
                 .hasSize(3)
-                .extracting(ProductResponse::productId)
-                .containsExactlyInAnyOrder(products.get(0).getProductId(), products.get(1).getProductId(), products.get(2).getProductId());
+                .extracting(i -> tuple(i.productId()))
+                .containsExactlyElementsOf(
+                        products.stream()
+                                .map(product -> tuple(product.getProductId()))
+                                .toList()
+                );
     }
 }
