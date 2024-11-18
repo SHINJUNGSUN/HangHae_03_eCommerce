@@ -13,7 +13,6 @@ import io.hhplus.ecommerce.product.domain.repository.ProductRepository;
 import io.hhplus.ecommerce.user.application.UserFacade;
 import io.hhplus.ecommerce.user.application.dto.UserPointRequest;
 import io.hhplus.ecommerce.user.application.dto.UserPointResponse;
-import io.hhplus.ecommerce.user.application.service.UserService;
 import io.hhplus.ecommerce.user.domain.model.User;
 import io.hhplus.ecommerce.user.domain.model.UserPoint;
 import io.hhplus.ecommerce.user.domain.repository.UserRepository;
@@ -172,7 +171,7 @@ public class PaymentIntegrationTest {
 
         userFacade.chargePoint(userSeq, new UserPointRequest(amount));
 
-        doThrow(new IllegalStateException()).when(slackMessageUtil).sendMessage(anyString());
+        doThrow(new RuntimeException()).when(slackMessageUtil).sendMessage(anyString());
 
         // When
         paymentFacade.payment(userSeq, new PaymentRequest(orderId));

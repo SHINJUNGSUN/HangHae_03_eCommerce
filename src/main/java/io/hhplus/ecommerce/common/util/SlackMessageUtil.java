@@ -10,7 +10,9 @@ import org.springframework.web.client.RestTemplate;
 public class SlackMessageUtil {
 
     private final String SLACK_API_URL = "";
+
     private final String SLACK_TOKEN = "";
+
     private final String SLACK_CHANNEL_ID = "";
 
     public void sendMessage(String message) {
