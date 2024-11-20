@@ -1,6 +1,5 @@
 package io.hhplus.ecommerce.payment.domain.event;
 
-import io.hhplus.ecommerce.order.domain.model.Order;
 import lombok.*;
 
 @Getter
@@ -8,13 +7,15 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentCompleteEvent {
+    private String topic;
     private Long userSeq;
-    private Order order;
+    private Long orderId;
 
-    public static PaymentCompleteEvent of(Long userSeq, Order order) {
+    public static PaymentCompleteEvent of(Long userSeq, Long orderId) {
         return PaymentCompleteEvent.builder()
+                .topic("payment-success")
                 .userSeq(userSeq)
-                .order(order)
+                .orderId(orderId)
                 .build();
     }
 }
