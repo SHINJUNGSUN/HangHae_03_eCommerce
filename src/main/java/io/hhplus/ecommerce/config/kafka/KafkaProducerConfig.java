@@ -32,4 +32,9 @@ public class KafkaProducerConfig {
     public KafkaTemplate<String, String> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
+
+    @Bean
+    public KafkaTemplate<String, String> retryableTopicKafkaTemplate() {
+        return new KafkaTemplate<>(producerFactory());
+    }
 }
