@@ -1,7 +1,6 @@
 package io.hhplus.ecommerce.payment.application;
 
 import io.hhplus.ecommerce.common.exception.ExceptionMessage;
-import io.hhplus.ecommerce.common.util.SlackMessageUtil;
 import io.hhplus.ecommerce.order.application.service.OrderService;
 import io.hhplus.ecommerce.order.domain.model.Order;
 import io.hhplus.ecommerce.order.domain.model.OrderStatus;
@@ -22,8 +21,6 @@ public class PaymentFacade {
 
     private final ApplicationEventPublisher eventPublisher;
 
-    private final SlackMessageUtil slackMessageUtil;
-
     private final OrderService orderService;
 
     private final UserPointService userPointService;
@@ -42,7 +39,7 @@ public class PaymentFacade {
 
         Payment payment = paymentService.payment(userSeq, order);
 
-        eventPublisher.publishEvent(PaymentCompleteEvent.of(userSeq, order));
+        eventPublisher.publishEvent(PaymentCompleteEvent.of(userSeq, order.getOrderId()));
 
         return PaymentResponse.from(payment);
     }

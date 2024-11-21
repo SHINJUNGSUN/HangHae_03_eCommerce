@@ -1,8 +1,9 @@
-package io.hhplus.ecommerce.payment.application.eventListener;
+package io.hhplus.ecommerce.payment.application.handler;
 
-import io.hhplus.ecommerce.common.util.SlackMessageUtil;
 import io.hhplus.ecommerce.payment.domain.event.PaymentCompleteEvent;
+import io.hhplus.ecommerce.payment.infrastructure.message.PaymentKafkaProducer;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -11,11 +12,11 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class PaymentEventHandler {
 
-    private final SlackMessageUtil slackMessageUtil;
+    private final PaymentKafkaProducer paymentKafkaProducer;
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void paymentCompleteEventHandler(PaymentCompleteEvent event) {
-        String message = String.format("사용자(UserSeq: %d) 결제 성공!", event.getUserSeq());
-        slackMessageUtil.sendMessage(message);
+        paymentKafkaProducer.paymentComplete(event);
     }
 }
