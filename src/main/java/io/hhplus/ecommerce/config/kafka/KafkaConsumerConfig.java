@@ -1,6 +1,5 @@
 package io.hhplus.ecommerce.config.kafka;
 
-import nonapi.io.github.classgraph.json.JSONDeserializer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;

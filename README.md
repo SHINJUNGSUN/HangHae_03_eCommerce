@@ -1874,10 +1874,174 @@ public class PaymentEventHandler {
 </details>
 
 ## `Step17`
-## 이벤트 드리븐과 분산 메시지 큐
+## 카프카(Kafka)
 <details>
 <summary>내용 보기</summary>
 
+### `마이크로 서비스 아키텍쳐(MSA)`와 `이벤트 드리븐 아키텍쳐(EDA)`
 
+`마이크로 서비스 아키텍쳐(MSA)`는 서비스 간의 독립성과 확장성을 추구한다.
+
+각 서비스는 `느슨한 결합`을 유지하여 서로에 대한 의존도를 낮추고, `강한 응집력`을 통해 서비스의 역할과 책임에 집중한다.
+
+`이벤트 드리븐 아키텍쳐(EDA)`는 이러한 `마이크로 서비스 아키텍쳐(MSA)`를 지원한다.
+
+`이벤트`를 기반으로 서비스를 연결하여 서비스 간 직접적인 호출을 피하고 비동기 통신으로 데이터를 전달하여 확장성을 보장한다.
+
+### 메시지 큐 기반 통신 vs API 기반 통신
+
+`마이크로 서비스 아키텍쳐(MSA)`에서 서비스 간 통신은 매우 중요하며, 이를 위해 일반적으로 API 기반 통신 또는 메시지 큐 기반 통신이 활용된다.
+
+`API 기반 통신`은 간단한 데이터 요청-응답 시나리오에 적합하지만, 높은 결합도와 장애 전파의 한계로 인해 대규모 분산 시스템에서 유연성과 확장성이 제한된다.
+
+반면, `메시지 큐 기반 통신`은 비동기적이고 느슨한 결합을 제공하여 마이크로서비스 간 독립성과 확장성을 보장한다.
+
+특히, 이벤트 드리븐 아키텍처를 채택한 시스템에서는 메시지 큐 기반 통신이 더 적합하며, 안정성과 유연성을 높이는 데 큰 기여한다.
+
+이를 통해 `MSA`의 핵심 원칙인 느슨한 결합과 강한 응집을 효과적으로 실현할 수 있다.
+
+### 왜 카프카(Kafka)인가?
+
+`카프카(Kafka)`는 높은 확장성과 내결함성, 대용량 데이터 처리, 실시간 데이터 처리에 특화되어 있는 오픈소스 메시징 시스템이다.
+
+`카프카(Kafka)`는 아래와 같은 특징을 가진다.
+
+1. 높은 처리량과 낮은 지연시간
+   - 대용량 데이터를 실시간으로 처리할 수 있도록 설계되었다.
+   - 실시간 데이터 스트림, 로그 집계, 이벤트 드리븐 아키텍처 구현에 적합하다.
+2. 메시지 내구성
+   - 메모리가 아닌 디스크에 영구적으로 저장돤다.
+   - `Redis Pub/Sub`의 경우 디스크에 저장되지 않으며, 장애 발생 시 유실된다.
+3. 분산 아키텍처
+   - 카프카 클러스터 내부에 여러대의 브로커 서버를 구성하여 높은 확장성과 내결함성을 갖는다.
+4. Pull 기반 메시지 소비
+   - 컨슈머가 능동적으로 브로커로부터 메시지를 가져오는 방식으로, 처리 능력에 따라 메시지를 컨슘할 수 있다.
+
+### 카프카(Kafka) 구현
+
+`Topic`
+```java
+@Configuration
+public class KafkaTopicConfig {
+
+    @Bean
+    public NewTopic paymentCompleteTopic() {
+        return TopicBuilder.name("payment-complete").build();
+    }
+}
+```
+
+`Producer`
+
+```java
+// KafkaProducerConfig.java
+@Configuration
+public class KafkaProducerConfig {
+
+  @Bean
+  public ProducerFactory<String, String> producerFactory() {
+    return new DefaultKafkaProducerFactory<>(producerConfigs());
+  }
+
+  @Bean
+  public Map<String, Object> producerConfigs() {
+    Map<String, Object> props = new HashMap<>();
+    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    return props;
+  }
+
+  @Bean
+  public KafkaTemplate<String, String> kafkaTemplate() {
+    return new KafkaTemplate<>(producerFactory());
+  }
+}
+
+// PaymentKafkaProducer.java
+@Component
+@RequiredArgsConstructor
+public class PaymentKafkaProducer {
+
+  private final KafkaTemplate<String, String> kafkaTemplate;
+
+  public void paymentComplete(PaymentCompleteEvent event) {
+    kafkaTemplate.send("payment-complete", ObjectMapperUtil.toJson(event));
+  }
+}
+```
+
+`Consumer`
+```java
+// KafkaConsumerConfig.java
+@Configuration
+public class KafkaConsumerConfig {
+
+  @Bean
+  public ConsumerFactory<String, String> consumerFactory() {
+    return new DefaultKafkaConsumerFactory<>(consumerConfig());
+  }
+
+  @Bean
+  public Map<String, Object> consumerConfig() {
+    Map<String, Object> props = new HashMap<>();
+    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    props.put(ConsumerConfig.GROUP_ID_CONFIG, "payment-complete-group");
+    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+    // auto.offset.reset
+    // 컨슈머가 예전에 오프셋을 커밋 한 적이 없거나, 커밋 된 오프셋이 유효하지 않을 때, 파티션을 읽기 시작할 때의 작동을 정의한다.
+    // - latest: 가장 최신 offset 부터 읽는다.
+    // - earliest: 가장 처음 offset 부터 읽는다.
+    // - none: offset 정보가 없는 경우, 예외를 발생시킨다.
+    props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+    props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
+
+    return props;
+  }
+
+  @Bean
+  public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> kafkaListenerContainerFactory() {
+    ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    factory.setConsumerFactory(consumerFactory());
+    factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
+    return factory;
+  }
+}
+
+// PaymentKafkaConsumer.java
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class PaymentKafkaConsumer {
+
+  private final PaymentApplicationService paymentApplicationService;
+
+  private CountDownLatch latch = new CountDownLatch(1);
+
+  private String message;
+
+  @KafkaListener(topics = "payment-complete", groupId = "payment-complete-group")
+  public void paymentComplete(ConsumerRecord<String, String> record, Acknowledgment acknowledgment) {
+
+    log.info("[KAFKA] RECORD: {}", record.toString());
+
+    message = record.value();
+    latch.countDown();
+
+    paymentApplicationService.sendDataPlatform(ObjectMapperUtil.toObject(record.value(), PaymentCompleteEvent.class));
+
+    acknowledgment.acknowledge();
+  }
+
+  public CountDownLatch getLatch() {
+    return this.latch;
+  }
+
+  public String getMessage() {
+    return this.message;
+  }
+}
+```
 
 </details>
