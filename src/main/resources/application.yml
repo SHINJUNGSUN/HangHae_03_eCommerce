@@ -15,3 +15,7 @@ spring:
       hibernate:
         show_sql: true
         format_sql: false
+common:
+  slack-api-url: https://slack.com/api/chat.postMessage
+  slack-token: secret
+  slack-channel-id: C080X5NNG4U
