@@ -1,5 +1,6 @@
 package io.hhplus.ecommerce.payment;
 
+import io.hhplus.ecommerce.common.util.ObjectMapperUtil;
 import io.hhplus.ecommerce.common.util.SlackMessageUtil;
 import io.hhplus.ecommerce.order.domain.model.Order;
 import io.hhplus.ecommerce.order.domain.model.OrderLine;
@@ -7,7 +8,9 @@ import io.hhplus.ecommerce.order.domain.repository.OrderRepository;
 import io.hhplus.ecommerce.payment.application.PaymentFacade;
 import io.hhplus.ecommerce.payment.application.dto.PaymentRequest;
 import io.hhplus.ecommerce.payment.application.dto.PaymentResponse;
+import io.hhplus.ecommerce.payment.domain.event.PaymentCompleteEvent;
 import io.hhplus.ecommerce.payment.domain.model.PaymentStatus;
+import io.hhplus.ecommerce.payment.infrastructure.message.PaymentKafkaConsumer;
 import io.hhplus.ecommerce.product.domain.model.Product;
 import io.hhplus.ecommerce.product.domain.repository.ProductRepository;
 import io.hhplus.ecommerce.user.application.UserFacade;
@@ -25,27 +28,38 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
+import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @Testcontainers
 @ActiveProfiles("test")
+@RecordApplicationEvents
 public class PaymentIntegrationTest {
 
     @Container
     static MySQLContainer<?> mySQLContainer;
 
+    @Container
+    static KafkaContainer kafkaContainer;
+
     static {
         mySQLContainer = new MySQLContainer<>("mysql:8.0");
+        kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:latest"));
     }
 
     @DynamicPropertySource
@@ -57,6 +71,12 @@ public class PaymentIntegrationTest {
 
     @MockBean
     SlackMessageUtil slackMessageUtil;
+
+    @Autowired
+    ApplicationEvents applicationEvents;
+
+    @Autowired
+    PaymentKafkaConsumer paymentKafkaConsumer;
 
     @Autowired
     PaymentFacade paymentFacade;
@@ -162,6 +182,32 @@ public class PaymentIntegrationTest {
     }
 
     @Test
+    @DisplayName("결제 이벤트 발행 및 수신 테스트")
+    void payment_eventPublish() throws InterruptedException {
+        // Given
+        long userSeq = user.getUserSeq();
+        long orderId = order.getOrderId();
+        long amount = 200000L;
+
+        userFacade.chargePoint(userSeq, new UserPointRequest(amount));
+
+        // When
+        paymentFacade.payment(userSeq, new PaymentRequest(orderId));
+
+        Thread.sleep(2000);
+
+        // Then
+        assertThat(applicationEvents.stream(PaymentCompleteEvent.class))
+                .hasSize(1)
+                .anySatisfy(event -> {
+                    assertAll(
+                            () -> assertThat(event.getUserSeq()).isEqualTo(userSeq),
+                            () -> assertThat(event.getOrderId()).isEqualTo(orderId)
+                    );
+                });
+    }
+
+    @Test
     @DisplayName("결제 트랜잭션 테스트: 데이터 플랫폼 전달 로직에서 오류 발생한 경우")
     void payment_transaction() {
         // Given
@@ -180,5 +226,24 @@ public class PaymentIntegrationTest {
 
         // Then
         assertEquals(amount - order.totalPrice(), response.point());
+    }
+
+    @Test
+    @DisplayName("결제 완료 이벤트 카프카 테스트")
+    void TestContainerKafkaTest_paymentComplete() throws InterruptedException {
+        // Given
+        long userSeq = user.getUserSeq();
+        long orderId = order.getOrderId();
+        long amount = 200000L;
+
+        userFacade.chargePoint(userSeq, new UserPointRequest(amount));
+
+        // When
+        paymentFacade.payment(userSeq, new PaymentRequest(orderId));
+
+        // Then
+        boolean messageConsumed = paymentKafkaConsumer.getLatch().await(10, TimeUnit.SECONDS);
+        assertTrue(messageConsumed);
+        assertEquals(paymentKafkaConsumer.getMessage(), ObjectMapperUtil.toJson(PaymentCompleteEvent.of(userSeq, orderId)));
     }
 }

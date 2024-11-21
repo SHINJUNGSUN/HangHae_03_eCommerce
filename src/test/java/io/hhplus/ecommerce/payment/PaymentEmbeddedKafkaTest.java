@@ -27,7 +27,7 @@ public class PaymentEmbeddedKafkaTest {
     PaymentKafkaConsumer paymentKafkaConsumer;
 
     @Test
-    @DisplayName("")
+    @DisplayName("결제 완료 이벤트 카프카 테스트")
     void embeddedKafkaTest_paymentComplete() throws InterruptedException {
         // Given
         long userSeq = 1L;
@@ -38,7 +38,7 @@ public class PaymentEmbeddedKafkaTest {
         paymentKafkaProducer.paymentComplete(event);
 
         // Then
-        boolean messageConsumed = paymentKafkaConsumer.getLatch().await(2, TimeUnit.SECONDS);
+        boolean messageConsumed = paymentKafkaConsumer.getLatch().await(10, TimeUnit.SECONDS);
         assertTrue(messageConsumed);
         assertEquals(paymentKafkaConsumer.getMessage(), ObjectMapperUtil.toJson(event));
     }
