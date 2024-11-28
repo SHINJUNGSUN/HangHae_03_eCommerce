@@ -2045,3 +2045,202 @@ public class PaymentKafkaConsumer {
 ```
 
 </details>
+
+## `Step19`
+## 부하테스트 보고서
+<details>
+<summary>내용 보기</summary>
+
+## 부하 테스트 계획
+
+### 테스트 환경
+- 운영체제: Microsoft Windows 11 Pro
+- 프로세서: Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz, 2601Mhz, 6 코어, 12 논리 프로세서
+- 메모리(RAM): 16GB
+- 스토리지: 512GB SSD
+- Docker: Docker Desktop
+  - MySql
+  - Redis
+  - Kafka
+
+### 테스트 도구: K6
+
+### 테스트 시나리오
+- 10초 동안 사용자 1,000명 도달
+- 20초 동안 사용자 2,000명 도달
+- 30초 동안 사용자 3,000명 도달
+- 40초 동안 사용자 2,000명 유지
+- 50초 동안 사용자 1,000명 유지
+
+## 부하 테스트 대상
+
+### 1. 상위 상품 조회 API
+- `GET` /adi/products/popular
+- `테스트 스크립트`
+  ```javascript
+  import http from 'k6/http';
+  import { check, sleep } from 'k6';
+  
+  export const options = {
+      stages: [
+          { duration: '10s', target: 1000 },
+          { duration: '20s', target: 2000 },
+          { duration: '30s', target: 3000 },
+          { duration: '40s', target: 2000 },
+          { duration: '50s', target: 1000 },
+      ],
+  }
+  
+  export default function () {
+  
+      const DEFAULT_URL = 'http://localhost:8080';
+  
+      const params = {
+          headers: { 'Content-Type': 'application/json', }
+      }
+  
+      const response = http.get(`${DEFAULT_URL}/api/products/popular`, null, params);
+      check(response, { '상위 상품 조회': (res) => res.status === 200 });
+  
+      sleep(1);
+  }
+  ```
+- `테스트 결과`
+  ```
+     ✓ 상위 상품 조회
+
+     checks.........................: 100.00% 268733 out of 268733
+     data_received..................: 34 MB   224 kB/s
+     data_sent......................: 27 MB   178 kB/s
+     http_req_blocked...............: avg=65.31µs  min=0s       med=0s      max=76.03ms  p(90)=0s       p(95)=0s
+     http_req_connecting............: avg=37.28µs  min=0s       med=0s      max=74.53ms  p(90)=0s       p(95)=0s
+     http_req_duration..............: avg=62.03ms  min=503.49µs med=28.02ms max=710.89ms p(90)=157.24ms p(95)=220.19ms
+       { expected_response:true }...: avg=62.03ms  min=503.49µs med=28.02ms max=710.89ms p(90)=157.24ms p(95)=220.19ms
+     http_req_failed................: 0.00%   0 out of 268733
+     http_req_receiving.............: avg=10.59ms  min=0s       med=57.9µs  max=243.16ms p(90)=43.39ms  p(95)=60.63ms
+     http_req_sending...............: avg=115.99µs min=0s       med=0s      max=173.28ms p(90)=0s       p(95)=507.2µs
+     http_req_tls_handshaking.......: avg=0s       min=0s       med=0s      max=0s       p(90)=0s       p(95)=0s
+     http_req_waiting...............: avg=51.32ms  min=0s       med=23.21ms max=676.5ms  p(90)=128.69ms p(95)=183.06ms
+     http_reqs......................: 268733  1779.659507/s
+     iteration_duration.............: avg=1.06s    min=1s       med=1.03s   max=1.73s    p(90)=1.16s    p(95)=1.22s
+     iterations.....................: 268733  1779.659507/s
+     vus............................: 154     min=81               max=2993
+     vus_max........................: 3000    min=3000             max=3000
+  ```
+- `테스트 결과 요약`
+  - `성공률`: 요청 성공률은 100% (268,733/268,733)
+  - `평균 요청 응답 시간`:
+    - 평균: 62.03ms
+    - 최소: 503.49µs
+    - 최대: 710.89ms
+  - `대기 시간 (http_req_waiting)`: 평균 51.32ms
+  - `데이터 전송량`:
+    - `수신 데이터`: 34MB (224kB/s)
+    - `송신 데이터`: 27MB (178kB/s)
+  - `요청 처리율`: 
+    - 평균 1,779.66 요청/초
+    - 최대 3,000 VUs 처리
+- `결론`
+  - 최대 3,000명 동시 사용자 상태에서도 요청 성공률 100%를 유지하며, 테스트 시나리오에 맞는 부하를 안정적으로 처리하였다.
+
+### 2. 주문 API
+- `POST` /adi/orders
+- `테스트 스크립트`
+  ```javascript
+  import http from 'k6/http';
+  import { check, sleep } from 'k6';
+  
+  export const options = {
+    stages: [
+        { duration: '10s', target: 1000 },
+        { duration: '20s', target: 2000 },
+        { duration: '30s', target: 3000 },
+        { duration: '40s', target: 2000 },
+        { duration: '50s', target: 1000 },
+    ],
+  }
+
+  export default function () {
+  
+    const DEFAULT_URL = 'http://localhost:8080';
+  
+    let params = {
+        headers: { 'Content-Type': 'application/json', }
+    }
+  
+    const login = http.post(`${DEFAULT_URL}/api/users/login`, JSON.stringify({
+        userId: 'sjs818',
+        password: '1q2w3e4r!!'
+    }), params);
+  
+    check(login, { '로그인': (res) => res.status === 200 });
+  
+    const body = JSON.parse(login.body);
+  
+    params = {
+        headers: {
+            'Authorization': `Bearer ${body.token}`,
+            'Content-Type': 'application/json'
+        }
+    }
+  
+    const payload = JSON.stringify({
+        OrderProductList: [
+            {
+                productId: 1,
+                quantity: 1
+            }
+        ]
+    });
+  
+    const response = http.post(`${DEFAULT_URL}/api/orders`, payload, params);
+    check(response, { '주문': (res) => res.status === 200 });
+  
+    sleep(1);
+  }
+  ```
+- `테스트 결과`
+  ```
+     ✓ 로그인
+     ✓ 주문
+
+     checks.........................: 100.00% 14790 out of 14790
+     data_received..................: 3.8 MB  23 kB/s
+     data_sent......................: 4.5 MB  27 kB/s
+     http_req_blocked...............: avg=748.55µs min=0s       med=0s     max=81.96ms p(90)=1.03ms  p(95)=3.34ms
+     http_req_connecting............: avg=698.87µs min=0s       med=0s     max=80.96ms p(90)=1ms     p(95)=3ms
+     http_req_duration..............: avg=21.73s   min=149.77ms med=24.16s max=34.06s  p(90)=30.94s  p(95)=31.8s
+       { expected_response:true }...: avg=21.73s   min=149.77ms med=24.16s max=34.06s  p(90)=30.94s  p(95)=31.8s
+     http_req_failed................: 0.00%   0 out of 14790
+     http_req_receiving.............: avg=341.89µs min=0s       med=0s     max=75.46ms p(90)=690.7µs p(95)=1.07ms
+     http_req_sending...............: avg=55.7µs   min=0s       med=0s     max=47.11ms p(90)=0s      p(95)=503.65µs
+     http_req_tls_handshaking.......: avg=0s       min=0s       med=0s     max=0s      p(90)=0s      p(95)=0s
+     http_req_waiting...............: avg=21.73s   min=149.77ms med=24.16s max=34.06s  p(90)=30.94s  p(95)=31.8s
+     http_reqs......................: 14790   88.659186/s
+     iteration_duration.............: avg=43.65s   min=1.46s    med=48.51s max=1m4s    p(90)=1m0s    p(95)=1m1s
+     iterations.....................: 7009    42.015702/s
+     vus............................: 7       min=7              max=3000
+     vus_max........................: 3000    min=3000           max=3000
+  ```
+- `테스트 결과 요약`
+  - `성공률`: 요청 성공률은 100%  (14,790/14,790)
+  - `평균 요청 응답 시간`:
+    - 평균: 21.73s
+    - 최소: 149.77ms
+    - 최대: 34.06s
+  - `대기 시간 (http_req_waiting)`: 평균 21.73s
+  - `데이터 전송량`:
+    - `수신 데이터`: 3.8MB (23kB/s)
+    - `송신 데이터`: 4.5MB (27kB/s).
+  - `요청 처리율`:
+    - 평균 88.66 요청/초
+    - 최대 3,000 VUs 처리
+- `결론`
+  - 모든 요청이 성공적으로 처리되었으나, 응답 시간이 매우 길어 실사용자 경험에 부정적인 영향을 줄 가능성이 크다.
+  - 응답 시간이 평균 21.73초로 확인되며, 이는 API 호출 시 서버 처리 시간이 과도하게 걸리는 병목을 낸다.
+- `조치 방안`
+  - 성능 병목 분석 및 주문 처리 관련 데이터베이스 쿼리 최적화 또는 캐싱 전략을 적용하여 성능을 개선한다.
+  - 상품 재고 확인이나 사용자 정보는 캐싱 튜닝 및 추가를 통해 개선한다.
+  - 주문 생성 및 확인과 같은 비동기 작업으로 전환하여 사용자 응답 속도를 개선합니다.
+
+</details>
